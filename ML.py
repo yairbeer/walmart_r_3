@@ -12,9 +12,13 @@ __author__ = 'WiBeer'
 """
 data ML
 """
-train = pd.read_csv("train_dummied.csv")
-train_result = pd.read_csv("train_result.csv")
-test = pd.read_csv("test_dummied.csv")
+train = pd.DataFrame.from_csv("train_dummied.csv")
+train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
+test = pd.DataFrame.from_csv("test_dummied.csv")
+print list(train.columns.values)
+print list(test.columns.values)
+train = np.array(train)
+test = np.array(test)
 
 # Common preprocessing
 # Standardizing
@@ -49,7 +53,7 @@ classifier.fit(train, train_result)
 predicted_results = classifier.predict_proba(test)
 
 predicted_results_self = classifier.predict_proba(train)
-log_loss(train_result, predicted_results_self)
+print log_loss(train_result, predicted_results_self)
 
 # # PCA
 # pcaing = PCA(n_components=2)
