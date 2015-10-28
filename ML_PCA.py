@@ -27,10 +27,10 @@ test = stding.transform(test)
 
 # PCA
 pcaing = PCA(n_components=10)
-train_pca = pcaing.fit_transform(train)
-test_pca = pcaing.transform(test)
+train = pcaing.fit_transform(train)
+test = pcaing.transform(test)
 
-classifier = KNeighborsClassifier(n_neighbors=100)
+classifier = GradientBoostingClassifier(n_estimators=300)
 
 # CV
 cv_n = 4
@@ -59,4 +59,7 @@ predicted_results = classifier.predict_proba(test)
 
 submission_file = pd.DataFrame.from_csv("sample_submission.csv")
 submission_file[list(submission_file.columns.values)] = predicted_results
-submission_file.to_csv("dep_fln002_PCA_rf.csv")
+submission_file.to_csv("dep_fln002_PCA_GBC.csv")
+
+# knn n_neighbors=400, n_components = 10, 1.7
+
