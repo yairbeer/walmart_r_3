@@ -3,9 +3,9 @@ import numpy as np
 import random
 from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import log_loss
 from sklearn.preprocessing import StandardScaler
-from sklearn.cross_validation import KFold
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.metrics import log_loss
 
 __author__ = 'WiBeer'
 
@@ -15,8 +15,6 @@ data ML
 train = pd.DataFrame.from_csv("train_dummied.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
 test = pd.DataFrame.from_csv("test_dummied.csv")
-print list(train.columns.values)
-print list(test.columns.values)
 train = np.array(train)
 test = np.array(test)
 
@@ -28,32 +26,29 @@ test = stding.transform(test)
 
 classifier = RandomForestClassifier(n_estimators=300)
 
-# # CV n = 4
-# cv_n = 4
+# CV
+cv_n = 4
+kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
-# metric = []
-# for train_index, test_index in kf:
-#     X_train, X_test = train_cv[train_index, :], train_cv[test_index, :]
-#     y_train, y_test = train_result_cv[train_index].ravel(), train_result_cv[test_index].ravel()
-#     print X_train.shape, X_test.shape
-#     print len(y_train), len(y_test )
-#     # train machine learning
-#     classifier.fit(X_train, y_train)
+metric = []
+for train_index, test_index in kf:
+    X_train, X_test = train[train_index, :], train[test_index, :]
+    y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
+    # train machine learning
+    classifier.fit(X_train, y_train)
 
-#     # predict
-#     class_pred = classifier.predict_proba(X_test)
+    # predict
+    class_pred = classifier.predict_proba(X_test)
 
-#     # evaluate
-#     print log_loss(y_test, class_pred)
-#     metric.append(log_loss(y_test, class_pred))
-# print 'The log loss is: ', np.mean(metric)
+    # evaluate
+    print log_loss(y_test, class_pred)
+    metric.append(log_loss(y_test, class_pred))
+
+print 'The log loss is: ', np.mean(metric)
 
 # predict testset
 classifier.fit(train, train_result)
 predicted_results = classifier.predict_proba(test)
-
-predicted_results_self = classifier.predict_proba(train)
-print log_loss(train_result, predicted_results_self)
 
 # # PCA
 # pcaing = PCA(n_components=2)
