@@ -46,11 +46,12 @@ fineline_cols = list(fineline_density.index)
 print fineline_cols
 
 # remove sparse FinelineNumber products
-trainset.iloc[0]['FinelineNumber']
-for i in range(trainset.shape[0]):
-    if not(trainset.iloc[i]['FinelineNumber'] in fineline_cols):
-        trainset.iloc[i]['FinelineNumber'] = 0
-trainset['FinelineNumber'].value_counts()
+tmp_series = np.zeros((trainset.shape[0], 1))
+for i in trainset.index:
+    if trainset['FinelineNumber'][i] in fineline_cols:
+        tmp_series[i] = 0
+trainset['FinelineNumber'] = tmp_series
+print trainset['FinelineNumber'].value_counts()
 
 train = pd.concat([train_data_not_count, train_data_count_dep, train_data_tot_items], axis=1)
 
