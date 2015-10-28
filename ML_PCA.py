@@ -2,12 +2,11 @@ import pandas as pd
 import numpy as np
 import random
 from sklearn.linear_model import SGDClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
 from sklearn.decomposition import PCA
-from sklearn.svm import LinearSVC
 
 __author__ = 'WiBeer'
 
@@ -27,25 +26,26 @@ train = stding.fit_transform(train)
 test = stding.transform(test)
 
 # PCA
-pcaing = PCA(n_components=2)
+pcaing = PCA()
 train_pca = pcaing.fit_transform(train)
 test_pca = pcaing.transform(test)
 
-classifier_svm = LinearSVC()
+classifier = GradientBoostingClassifier(n_estimators=100)
 
 # CV
 cv_n = 4
 kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
+print 'start CV'
 metric = []
 for train_index, test_index in kf:
     X_train, X_test = train[train_index, :], train[test_index, :]
     y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
     # train machine learning
-    classifier_svm.fit(X_train, y_train)
+    classifier.fit(X_train, y_train)
 
     # predict
-    class_pred = classifier_svm.predict_proba(X_test)
+    class_pred = classifier.predict_proba(X_test)
 
     # evaluate
     print log_loss(y_test, class_pred)
@@ -54,8 +54,8 @@ for train_index, test_index in kf:
 print 'The log loss is: ', np.mean(metric)
 
 # predict testset
-classifier_svm.fit(train, train_result)
-predicted_results = classifier_svm.predict_proba(test)
+classifier.fit(train, train_result)
+predicted_results = classifier.predict_proba(test)
 
 submission_file = pd.DataFrame.from_csv("sample_submission.csv")
 submission_file[list(submission_file.columns.values)] = predicted_results
