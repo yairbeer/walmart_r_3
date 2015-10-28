@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
 from sklearn.decomposition import PCA
-
+from sklearn.neighbors import KNeighborsClassifier
 __author__ = 'WiBeer'
 
 """
@@ -26,11 +26,11 @@ train = stding.fit_transform(train)
 test = stding.transform(test)
 
 # PCA
-pcaing = PCA()
+pcaing = PCA(n_components=10)
 train_pca = pcaing.fit_transform(train)
 test_pca = pcaing.transform(test)
 
-classifier = GradientBoostingClassifier(n_estimators=100)
+classifier = KNeighborsClassifier(n_neighbors=100)
 
 # CV
 cv_n = 4
