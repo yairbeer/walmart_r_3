@@ -117,6 +117,7 @@ testset = testset.fillna('-999')
 test_data_not_count = pd.get_dummies(testset['Weekday'])
 test_data_not_count = test_data_not_count.groupby(by=test_data_not_count.index, sort=False).mean()
 n_test = testset.shape[0]
+n_trips_test = test_data_not_count.shape[0]
 
 test_data_count_dep = pd.get_dummies(testset['DepartmentDescription'])
 tmp_index = test_data_count_dep.index
@@ -142,10 +143,13 @@ test_returned_items.index = testset.index
 test_returned_items.columns = ['Returned']
 test_data_returned_items = test_returned_items.groupby(by=testset.index, sort=False).sum()
 
+sparsity = n_trips_test * 0.01
+
 # find most bought Upc
 print 'remove sparse test Upc'
 upc_density = testset['Upc'].value_counts()
 # print n_features
+n_features = np.sum(upc_density > sparsity)
 upc_density = upc_density.iloc[:n_features]
 upc_density = list(upc_density.index)
 print upc_density
@@ -164,7 +168,7 @@ print 'dummy test Upc'
 test_data_count_upc = pd.get_dummies(testset['Upc'])
 tmp_index = test_data_count_upc.index
 tmp_columns = list(test_data_count_upc.columns.values)
-tmp_table = np.array(test_data_count_upc) * np.array(testset['ScanCount']).reshape((n_test, 1))
+tmp_table = np.array(test_data_count_upc) * test_total_items
 test_data_count_upc = pd.DataFrame(tmp_table)
 test_data_count_upc.columns = tmp_columns
 test_data_count_upc.index = tmp_index
@@ -191,7 +195,7 @@ print testset['FinelineNumber'].value_counts()
 test_data_count_fln = pd.get_dummies(testset['FinelineNumber'])
 tmp_index = test_data_count_fln.index
 tmp_columns = list(test_data_count_fln.columns.values)
-tmp_table = np.array(test_data_count_fln) * np.array(testset['ScanCount']).reshape((n_test, 1))
+tmp_table = np.array(test_data_count_fln) * test_total_items
 test_data_count_fln = pd.DataFrame(tmp_table)
 test_data_count_fln.columns = tmp_columns
 test_data_count_fln.index = tmp_index
