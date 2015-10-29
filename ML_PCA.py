@@ -2,20 +2,19 @@ import pandas as pd
 import numpy as np
 import random
 from sklearn.linear_model import SGDClassifier
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
 from sklearn.decomposition import PCA
-from sklearn.neighbors import KNeighborsClassifier
 __author__ = 'WiBeer'
 
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied.csv")
+train = pd.DataFrame.from_csv("train_dummied_001.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
-test = pd.DataFrame.from_csv("test_dummied.csv")
+test = pd.DataFrame.from_csv("test_dummied_001.csv")
 train = np.array(train)
 test = np.array(test)
 
@@ -25,12 +24,9 @@ stding = StandardScaler()
 train = stding.fit_transform(train)
 test = stding.transform(test)
 
-# PCA
-pcaing = PCA(n_components=10)
-train = pcaing.fit_transform(train)
-test = pcaing.transform(test)
+# `
 
-classifier = GradientBoostingClassifier(n_estimators=300)
+classifier = RandomForestClassifier(n_estimators=300)
 
 # CV
 cv_n = 4
@@ -59,7 +55,7 @@ predicted_results = classifier.predict_proba(test)
 
 submission_file = pd.DataFrame.from_csv("sample_submission.csv")
 submission_file[list(submission_file.columns.values)] = predicted_results
-submission_file.to_csv("dep_fln002_PCA_GBC.csv")
+submission_file.to_csv("dep_fln_upc_001_PCA_GBC.csv")
 
 # knn n_neighbors=400, n_components = 10, 1.7
 
