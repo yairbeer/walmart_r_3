@@ -24,15 +24,25 @@ print 'dummy train DepartmentDescription'
 train_data_count_dep = pd.get_dummies(trainset['DepartmentDescription'])
 tmp_index = train_data_count_dep.index
 tmp_columns = list(train_data_count_dep.columns.values)
-tmp_table = np.array(train_data_count_dep) * np.array(trainset['ScanCount']).reshape((n, 1))
+# separate between returned and bought goods
+train_total_items = np.array(trainset['ScanCount']).reshape((n, 1))
+train_bought_items = np.clip(train_total_items, a_min=0)
+train_returned_items = np.clip(train_total_items, a_max=0)
+
+tmp_table = np.array(train_data_count_dep) * train_total_items
 train_data_count_dep = pd.DataFrame(tmp_table)
 train_data_count_dep.columns = tmp_columns
 train_data_count_dep.index = tmp_index
 train_data_count_dep = train_data_count_dep.groupby(by=train_data_count_dep.index, sort=False).sum()
 
-# need to separate between returned and bought goods
 
 train_data_tot_items = trainset['ScanCount'].groupby(by=trainset.index, sort=False).sum()
+train_bought_items = pd.Series(train_bought_items)
+train_bought_items.index = trainset.index
+train_data_bought_items = train_bought_items.groupby(by=trainset.index, sort=False).sum()
+train_returned_items = pd.Series(train_returned_items)
+train_returned_items.index = trainset.index
+train_data_returned_items = train_returned_items.groupby(by=trainset.index, sort=False).sum()
 
 sparsity = n_trips * 0.01
 
@@ -59,7 +69,7 @@ print 'dummy train Upc'
 train_data_count_upc = pd.get_dummies(trainset['Upc'])
 tmp_index = train_data_count_upc.index
 tmp_columns = list(train_data_count_upc.columns.values)
-tmp_table = np.array(train_data_count_upc) * np.array(trainset['ScanCount']).reshape((n, 1))
+tmp_table = np.array(train_data_count_upc) * train_total_items
 train_data_count_upc = pd.DataFrame(tmp_table)
 train_data_count_upc.columns = tmp_columns
 train_data_count_upc.index = tmp_index
@@ -88,14 +98,14 @@ print 'dummy train FinelineNumber'
 train_data_count_fln = pd.get_dummies(trainset['FinelineNumber'])
 tmp_index = train_data_count_fln.index
 tmp_columns = list(train_data_count_fln.columns.values)
-tmp_table = np.array(train_data_count_fln) * np.array(trainset['ScanCount']).reshape((n, 1))
+tmp_table = np.array(train_data_count_fln) * train_total_items
 train_data_count_fln = pd.DataFrame(tmp_table)
 train_data_count_fln.columns = tmp_columns
 train_data_count_fln.index = tmp_index
 train_data_count_fln = train_data_count_fln.groupby(by=train_data_count_fln.index, sort=False).sum()
 
 train = pd.concat([train_data_not_count, train_data_count_dep, train_data_count_fln, train_data_count_upc,
-                   train_data_tot_items], axis=1)
+                   train_data_tot_items, train_bought_items, train_returned_items], axis=1)
 
 # preprocess test data
 print 'read test data'
@@ -109,13 +119,25 @@ n_test = testset.shape[0]
 test_data_count_dep = pd.get_dummies(testset['DepartmentDescription'])
 tmp_index = test_data_count_dep.index
 tmp_columns = list(test_data_count_dep.columns.values)
-tmp_table = np.array(test_data_count_dep) * np.array(testset['ScanCount']).reshape((n_test, 1))
+
+test_total_items = np.array(trainset['ScanCount']).reshape((n_test, 1))
+test_bought_items = np.clip(test_total_items, a_min=0)
+test_returned_items = np.clip(test_total_items, a_max=0)
+
+tmp_table = np.array(test_data_count_dep) * test_total_items
 test_data_count_dep = pd.DataFrame(tmp_table)
 test_data_count_dep.columns = tmp_columns
 test_data_count_dep.index = tmp_index
 test_data_count_dep = test_data_count_dep.groupby(by=test_data_count_dep.index, sort=False).sum()
 
 test_data_tot_items = testset['ScanCount'].groupby(by=testset.index, sort=False).sum()
+test_data_tot_items = testset['ScanCount'].groupby(by=testset.index, sort=False).sum()
+test_bought_items = pd.Series(test_bought_items)
+test_bought_items.index = testset.index
+test_data_bought_items = test_bought_items.groupby(by=testset.index, sort=False).sum()
+test_returned_items = pd.Series(test_returned_items)
+test_returned_items.index = testset.index
+test_data_returned_items = test_returned_items.groupby(by=testset.index, sort=False).sum()
 
 # find most bought Upc
 print 'remove sparse test Upc'
@@ -174,7 +196,7 @@ test_data_count_fln.index = tmp_index
 test_data_count_fln = test_data_count_fln.groupby(by=test_data_count_fln.index, sort=False).sum()
 
 test = pd.concat([test_data_not_count, test_data_count_dep, test_data_count_fln, test_data_count_upc,
-                  test_data_tot_items], axis=1)
+                  test_data_tot_items, test_bought_items, test_returned_items], axis=1)
 
 # Find common coloumns
 col_train = list(train.columns.values)
@@ -191,7 +213,7 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_001.csv")
-test.to_csv("test_dummied_001.csv")
-train_result.to_csv("train_result.csv")
+train.to_csv("train_dummied_001_sep_b_r.csv")
+test.to_csv("test_dummied_001_sep_b_r.csv")
+# train_result.to_csv("train_result.csv")
 
