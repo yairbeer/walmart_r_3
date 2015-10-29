@@ -29,12 +29,13 @@ test = stding.transform(test)
 # pcaing = PCA(n_components=100)
 # train = pcaing.fit_transform(train)
 # test = pcaing.transform(test)
-param_grid = {'n_estimators': [100]}
+param_grid = {'n_estimators': [100], 'max_features': [0.1, 0.25, 0.5, 0.75, 1], 'max_depth': [2, 4, 8, 16, 32]}
 for params in ParameterGrid(param_grid):
-    classifier = RandomForestClassifier(n_estimators=params['n_estimators'])
+    print params
+    classifier = RandomForestClassifier(n_estimators=params['n_estimators'], )
 
 # CV
-cv_n = 4
+cv_n = 2
 kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
 print 'start CV'
@@ -49,7 +50,7 @@ for train_index, test_index in kf:
     class_pred = classifier.predict_proba(X_test)
 
     # evaluate
-    print log_loss(y_test, class_pred)
+    # print log_loss(y_test, class_pred)
     metric.append(log_loss(y_test, class_pred))
 
 print 'The log loss is: ', np.mean(metric)
