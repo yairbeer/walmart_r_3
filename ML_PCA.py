@@ -29,7 +29,8 @@ test = stding.transform(test)
 # train = pcaing.fit_transform(train)
 # test = pcaing.transform(test)
 
-classifier = RandomForestClassifier(n_estimators=500, max_features=0.1, max_depth=32)
+classifier = RandomForestClassifier(n_estimators=2000, max_features=0.1, max_depth=32, min_samples_split=7,
+                                    min_samples_leaf=1)
 
 # # CV
 # cv_n = 4

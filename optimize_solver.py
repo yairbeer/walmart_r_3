@@ -34,7 +34,7 @@ print 'start CV'
 best_metric = 10
 best_params = []
 param_grid = {'n_estimators': [100], 'max_features': [0.1], 'max_depth': [32],
-              'min_samples_split': [1, 2, 3, 4, 5], 'min_samples_leaf': [1, 2, 3, 4, 5]}
+              'min_samples_split': [7], 'min_samples_leaf': [1]}
 for params in ParameterGrid(param_grid):
     print params
     classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_features=params['max_features'],
