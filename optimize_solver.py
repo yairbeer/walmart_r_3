@@ -29,39 +29,31 @@ test = stding.transform(test)
 # pcaing = PCA(n_components=100)
 # train = pcaing.fit_transform(train)
 # test = pcaing.transform(test)
+
+print 'start CV'
+
 param_grid = {'n_estimators': [100], 'max_features': [0.1, 0.25, 0.5, 0.75, 1], 'max_depth': [2, 4, 8, 16, 32]}
 for params in ParameterGrid(param_grid):
     print params
-    classifier = RandomForestClassifier(n_estimators=params['n_estimators'], )
+    classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_features=params['max_features'],
+                                        max_depth=params['max_depth'])
 
-# CV
-cv_n = 2
-kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
+    # CV
+    cv_n = 2
+    kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
-print 'start CV'
-metric = []
-for train_index, test_index in kf:
-    X_train, X_test = train[train_index, :], train[test_index, :]
-    y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
-    # train machine learning
-    classifier.fit(X_train, y_train)
+    metric = []
+    for train_index, test_index in kf:
+        X_train, X_test = train[train_index, :], train[test_index, :]
+        y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
+        # train machine learning
+        classifier.fit(X_train, y_train)
 
-    # predict
-    class_pred = classifier.predict_proba(X_test)
+        # predict
+        class_pred = classifier.predict_proba(X_test)
 
-    # evaluate
-    # print log_loss(y_test, class_pred)
-    metric.append(log_loss(y_test, class_pred))
+        # evaluate
+        # print log_loss(y_test, class_pred)
+        metric.append(log_loss(y_test, class_pred))
 
-print 'The log loss is: ', np.mean(metric)
-
-# predict testset
-classifier.fit(train, train_result)
-predicted_results = classifier.predict_proba(test)
-
-submission_file = pd.DataFrame.from_csv("sample_submission.csv")
-submission_file[list(submission_file.columns.values)] = predicted_results
-submission_file.to_csv("dep_fln_upc_001_PCA_GBC.csv")
-
-# knn n_neighbors=400, n_components = 10, 1.7
-
+    print 'The log loss is: ', np.mean(metric)
