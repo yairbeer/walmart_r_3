@@ -26,8 +26,8 @@ tmp_index = train_data_count_dep.index
 tmp_columns = list(train_data_count_dep.columns.values)
 # separate between returned and bought goods
 train_total_items = np.array(trainset['ScanCount']).reshape((n, 1))
-train_bought_items = np.clip(train_total_items, a_min=0)
-train_returned_items = np.clip(train_total_items, a_max=0)
+train_bought_items = np.clip(train_total_items, a_min=0, a_max=99999)
+train_returned_items = np.clip(train_total_items, a_min=-99999, a_max=0)
 
 tmp_table = np.array(train_data_count_dep) * train_total_items
 train_data_count_dep = pd.DataFrame(tmp_table)
@@ -121,8 +121,8 @@ tmp_index = test_data_count_dep.index
 tmp_columns = list(test_data_count_dep.columns.values)
 
 test_total_items = np.array(trainset['ScanCount']).reshape((n_test, 1))
-test_bought_items = np.clip(test_total_items, a_min=0)
-test_returned_items = np.clip(test_total_items, a_max=0)
+test_bought_items = np.clip(test_total_items, a_min=0, a_max=99999)
+test_returned_items = np.clip(test_total_items, a_min=-99999, a_max=0)
 
 tmp_table = np.array(test_data_count_dep) * test_total_items
 test_data_count_dep = pd.DataFrame(tmp_table)
