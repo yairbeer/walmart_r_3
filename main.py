@@ -34,10 +34,40 @@ train_data_count_dep = train_data_count_dep.groupby(by=train_data_count_dep.inde
 
 train_data_tot_items = trainset['ScanCount'].groupby(by=trainset.index, sort=False).sum()
 
+sparsity = n_trips * 0.01
+
+# find most bought Upc
+print 'remove sparse train Upc'
+upc_density = trainset['Upc'].value_counts()
+n_features = np.sum(upc_density > sparsity)
+# print n_features
+upc_density = upc_density.iloc[:n_features]
+upc_density = list(upc_density.index)
+print upc_density
+
+# remove sparse Upc
+tmp_series = np.zeros((trainset.shape[0], 1))
+for i in range(trainset.shape[0]):
+    upc_number = trainset.iloc[i]['Upc']
+    if upc_number in upc_density:
+        tmp_series[i] = upc_number
+trainset['Upc'] = tmp_series
+print trainset['Upc'].value_counts()
+
+# dummy Upc
+print 'dummy train Upc'
+train_data_count_upc = pd.get_dummies(trainset['Upc'])
+tmp_index = train_data_count_upc.index
+tmp_columns = list(train_data_count_upc.columns.values)
+tmp_table = np.array(train_data_count_upc) * np.array(trainset['ScanCount']).reshape((n, 1))
+train_data_count_upc = pd.DataFrame(tmp_table)
+train_data_count_upc.columns = tmp_columns
+train_data_count_upc.index = tmp_index
+train_data_count_upc = train_data_count_upc.groupby(by=train_data_count_upc.index, sort=False).sum()
+
 # find most bought FinelineNumber
 print 'remove sparse train FinelineNumber'
 fineline_density = trainset['FinelineNumber'].value_counts()
-sparsity = n_trips * 0.02
 n_features = np.sum(fineline_density > sparsity)
 # print n_features
 fineline_density = fineline_density.iloc[:n_features]
@@ -64,7 +94,8 @@ train_data_count_fln.columns = tmp_columns
 train_data_count_fln.index = tmp_index
 train_data_count_fln = train_data_count_fln.groupby(by=train_data_count_fln.index, sort=False).sum()
 
-train = pd.concat([train_data_not_count, train_data_count_dep, train_data_count_fln, train_data_tot_items], axis=1)
+train = pd.concat([train_data_not_count, train_data_count_dep, train_data_count_fln, train_data_count_upc,
+                   train_data_tot_items], axis=1)
 
 # preprocess test data
 print 'read test data'
@@ -86,9 +117,37 @@ test_data_count_dep = test_data_count_dep.groupby(by=test_data_count_dep.index, 
 
 test_data_tot_items = testset['ScanCount'].groupby(by=testset.index, sort=False).sum()
 
+# find most bought Upc
+print 'remove sparse test Upc'
+upc_density = testset['Upc'].value_counts()
+n_features = np.sum(upc_density > sparsity)
+# print n_features
+upc_density = upc_density.iloc[:n_features]
+upc_density = list(upc_density.index)
+print upc_density
+
+# remove sparse Upc
+tmp_series = np.zeros((testset.shape[0], 1))
+for i in range(testset.shape[0]):
+    upc_number = testset.iloc[i]['Upc']
+    if upc_number in upc_density:
+        tmp_series[i] = upc_number
+testset['Upc'] = tmp_series
+print testset['Upc'].value_counts()
+
+# dummy Upc
+print 'dummy test Upc'
+test_data_count_upc = pd.get_dummies(testset['Upc'])
+tmp_index = test_data_count_upc.index
+tmp_columns = list(test_data_count_upc.columns.values)
+tmp_table = np.array(test_data_count_upc) * np.array(testset['ScanCount']).reshape((n, 1))
+test_data_count_upc = pd.DataFrame(tmp_table)
+test_data_count_upc.columns = tmp_columns
+test_data_count_upc.index = tmp_index
+test_data_count_upc = test_data_count_upc.groupby(by=test_data_count_upc.index, sort=False).sum()
+
 # find most bought FinelineNumber
 fineline_density = testset['FinelineNumber'].value_counts()
-sparsity = n_trips * 0.02
 n_features = np.sum(fineline_density > sparsity)
 # print n_features
 fineline_density = fineline_density.iloc[:n_features]
@@ -114,7 +173,8 @@ test_data_count_fln.columns = tmp_columns
 test_data_count_fln.index = tmp_index
 test_data_count_fln = test_data_count_fln.groupby(by=test_data_count_fln.index, sort=False).sum()
 
-test = pd.concat([test_data_not_count, test_data_count_dep, test_data_count_fln, test_data_tot_items], axis=1)
+test = pd.concat([test_data_not_count, test_data_count_dep, test_data_count_fln, test_data_count_upc,
+                  test_data_tot_items], axis=1)
 
 # Find common coloumns
 col_train = list(train.columns.values)
@@ -131,7 +191,7 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied.csv")
-test.to_csv("test_dummied.csv")
+train.to_csv("train_dummied_001.csv")
+test.to_csv("test_dummied_001.csv")
 train_result.to_csv("train_result.csv")
 
