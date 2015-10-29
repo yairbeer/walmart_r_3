@@ -33,8 +33,8 @@ test = stding.transform(test)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [100], 'max_features': [0.1], 'max_depth': [32],
-              'min_samples_split': [7], 'min_samples_leaf': [1]}
+param_grid = {'n_estimators': [100], 'max_features': [0.05, 0.1, 0.2], 'max_depth': [24, 32, 40],
+              'min_samples_split': [5, 7, 9], 'min_samples_leaf': [1, 3]}
 for params in ParameterGrid(param_grid):
     print params
     classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_features=params['max_features'],
@@ -63,4 +63,4 @@ for params in ParameterGrid(param_grid):
     if np.mean(metric) < best_metric:
         best_metric = np.mean(metric)
         best_params = params
-print 'The best metric is: ', best_metric, 'for the params: ', best_params
+    print 'The best metric is: ', best_metric, 'for the params: ', best_params
