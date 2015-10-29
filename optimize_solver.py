@@ -31,8 +31,9 @@ test = stding.transform(test)
 # test = pcaing.transform(test)
 
 print 'start CV'
-
-param_grid = {'n_estimators': [100], 'max_features': [0.1, 0.25, 0.5, 0.75, 1], 'max_depth': [2, 4, 8, 16, 32]}
+best_metric = 10
+best_params = []
+param_grid = {'n_estimators': [100], 'max_features': [0.1], 'max_depth': [32]}
 for params in ParameterGrid(param_grid):
     print params
     classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_features=params['max_features'],
@@ -57,3 +58,7 @@ for params in ParameterGrid(param_grid):
         metric.append(log_loss(y_test, class_pred))
 
     print 'The log loss is: ', np.mean(metric)
+    if np.mean(metric) < best_metric:
+        best_metric = np.mean(metric)
+        best_params = params
+print 'The best metric is: ', best_metric, 'for the params: ', best_params
