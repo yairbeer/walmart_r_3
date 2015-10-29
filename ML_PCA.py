@@ -12,9 +12,9 @@ __author__ = 'WiBeer'
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied_001.csv")
+train = pd.DataFrame.from_csv("train_dummied_001_sep_b_r.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
-test = pd.DataFrame.from_csv("test_dummied_001.csv")
+test = pd.DataFrame.from_csv("test_dummied_001_sep_b_r.csv")
 train = np.array(train)
 test = np.array(test)
 
@@ -29,7 +29,7 @@ test = stding.transform(test)
 # train = pcaing.fit_transform(train)
 # test = pcaing.transform(test)
 
-classifier = RandomForestClassifier(n_estimators=300)
+classifier = RandomForestClassifier(n_estimators=500)
 
 # CV
 cv_n = 4
