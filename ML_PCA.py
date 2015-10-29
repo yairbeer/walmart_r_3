@@ -24,7 +24,10 @@ stding = StandardScaler()
 train = stding.fit_transform(train)
 test = stding.transform(test)
 
-# `
+# # PCA
+# pcaing = PCA(n_components=100)
+# train = pcaing.fit_transform(train)
+# test = pcaing.transform(test)
 
 classifier = RandomForestClassifier(n_estimators=300)
 
