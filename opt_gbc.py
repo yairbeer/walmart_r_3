@@ -33,11 +33,13 @@ test = stding.transform(test)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'loss': ['log'], 'l1_ratio': [0], 'alpha': [0.01], 'n_iter': [40, 60, 80, 100]}
+param_grid = {'loss': ['log'], 'l1_ratio': [0], 'alpha': [0.005], 'n_iter': [100], 'eta0': [0.3],
+              'learning_rate': ['invscaling']}
 for params in ParameterGrid(param_grid):
     print params
     classifier = SGDClassifier(loss=params['loss'], penalty='elasticnet', l1_ratio=params['l1_ratio'],
-                               alpha=params['alpha'], n_iter=params['n_iter'])
+                               alpha=params['alpha'], n_iter=params['n_iter'], learning_rate=params['learning_rate'],
+                               eta0=params['eta0'])
 
     # CV
     cv_n = 2
