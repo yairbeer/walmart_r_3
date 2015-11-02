@@ -1,40 +1,31 @@
 from sklearn.grid_search import ParameterGrid
 import pandas as pd
 import numpy as np
-import random
-from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
-from sklearn.decomposition import PCA
 __author__ = 'WiBeer'
 
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied_001_sep_b_r.csv")
+train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
-test = pd.DataFrame.from_csv("test_dummied_001_sep_b_r.csv")
 train = np.array(train)
-test = np.array(test)
 
+print train.shape[1], ' columns'
 # Common preprocessing
 # Standardizing
 stding = StandardScaler()
 train = stding.fit_transform(train)
-test = stding.transform(test)
-
-# # PCA
-# pcaing = PCA(n_components=100)
-# train = pcaing.fit_transform(train)
-# test = pcaing.transform(test)
 
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [100], 'max_features': [0.05, 0.1, 0.2], 'max_depth': [24, 32, 40],
-              'min_samples_split': [5, 7, 9], 'min_samples_leaf': [1, 3]}
+param_grid = {'n_estimators': [500], 'max_features': [.06, .08, 0.1], 'max_depth': [60, 70, 80],
+              'min_samples_split': [4, 8], 'min_samples_leaf': [1]}
+
 for params in ParameterGrid(param_grid):
     print params
     classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_features=params['max_features'],
@@ -42,7 +33,7 @@ for params in ParameterGrid(param_grid):
                                         min_samples_leaf=params['min_samples_leaf'])
 
     # CV
-    cv_n = 2
+    cv_n = 4
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
     metric = []
@@ -64,3 +55,81 @@ for params in ParameterGrid(param_grid):
         best_metric = np.mean(metric)
         best_params = params
     print 'The best metric is: ', best_metric, 'for the params: ', best_params
+
+# {'max_features': 0.02, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.17390386121
+# The best metric is:  1.17390386121 for the params:  {'max_features': 0.02, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.02, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.1897201987
+# The best metric is:  1.17390386121 for the params:  {'max_features': 0.02, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.02, 'min_samples_split': 25, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.19948399053
+# The best metric is:  1.17390386121 for the params:  {'max_features': 0.02, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.01057948405
+# The best metric is:  1.01057948405 for the params:  {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.02737573519
+# The best metric is:  1.01057948405 for the params:  {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 25, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.03890821182
+# The best metric is:  1.01057948405 for the params:  {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.959270520459
+# The best metric is:  0.959270520459 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.972323060292
+# The best metric is:  0.959270520459 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 25, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.985040946822
+# The best metric is:  0.959270520459 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.940834661624
+# The best metric is:  0.940834661624 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.94969992212
+# The best metric is:  0.940834661624 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 25, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.960915030293
+# The best metric is:  0.940834661624 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.02, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.01148150314
+# The best metric is:  1.01148150314 for the params:  {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  1.02605725969
+# The best metric is:  1.01148150314 for the params:  {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.958893388618
+# The best metric is:  0.958893388618 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.973724919189
+# The best metric is:  0.958893388618 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.940082522507
+# The best metric is:  0.940082522507 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# The log loss is:  0.948637860883
+# The best metric is:  0.940082522507 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# The log loss is:  0.971201777159
+# The best metric is:  0.940082522507 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# The log loss is:  0.987032192516
+# The best metric is:  0.940082522507 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 50, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# The log loss is:  0.937271324107
+# The best metric is:  0.937271324107 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.06, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# The log loss is:  0.945335706754
+# The best metric is:  0.937271324107 for the params:  {'max_features': 0.06, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# The log loss is:  0.921276271806
+# The best metric is:  0.921276271806 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.08, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# The log loss is:  0.930886485009
+# The best metric is:  0.921276271806 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 70, 'min_samples_leaf': 1}
+# The log loss is:  0.952010767264
+# The best metric is:  0.921276271806 for the params:  {'max_features': 0.08, 'min_samples_split': 5, 'n_estimators': 500, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.04, 'min_samples_split': 15, 'n_estimators': 500, 'max_depth': 70, 'min_samples_leaf': 1}
