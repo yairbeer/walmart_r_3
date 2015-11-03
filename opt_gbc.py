@@ -14,20 +14,17 @@ data ML
 """
 train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
-test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r.csv")
 train = np.array(train)
-test = np.array(test)
+
 print train.shape[1], ' columns'
 # Common preprocessing
 # Standardizing
 stding = StandardScaler()
 train = stding.fit_transform(train)
-test = stding.transform(test)
 
 # PCA
 pcaing = PCA(n_components=200)
 train = pcaing.fit_transform(train)
-test = pcaing.transform(test)
 
 print 'start CV'
 best_metric = 10
