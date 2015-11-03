@@ -6,13 +6,12 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
-from sklearn.decomposition import PCA
 __author__ = 'WiBeer'
 
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r.csv")
+train = pd.DataFrame.from_csv("train_dummied_500_sep_dep_fln_b_r.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
 train = np.array(train)
 
@@ -22,18 +21,15 @@ print train.shape[1], ' columns'
 stding = StandardScaler()
 train = stding.fit_transform(train)
 
-# PCA
-pcaing = PCA(n_components=200)
-train = pcaing.fit_transform(train)
-
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'max_depth': [1, 10, 20, 40], 'max_features': [0.05, 0.1, 0.2]}
+param_grid = {'n_estimators': [25], 'max_depth': [10, 20, 40], 'max_features': [0.05, 0.1, 0.2]}
 
 for params in ParameterGrid(param_grid):
     print params
-    classifier = GradientBoostingClassifier(max_depth=params['max_depth'], max_features=params['max_features'])
+    classifier = GradientBoostingClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
+                                            max_features=params['max_features'])
 
     # CV
     cv_n = 2
