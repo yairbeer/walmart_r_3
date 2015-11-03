@@ -1,43 +1,42 @@
 from sklearn.grid_search import ParameterGrid
 import pandas as pd
 import numpy as np
-import random
 from sklearn.linear_model import SGDClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
-from sklearn.decomposition import PCA
 __author__ = 'WiBeer'
 
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied_001_sep_b_r.csv")
+train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
-test = pd.DataFrame.from_csv("test_dummied_001_sep_b_r.csv")
+test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r.csv")
 train = np.array(train)
 test = np.array(test)
-print train.shape[1], ' columns'
+
 # Common preprocessing
 # Standardizing
 stding = StandardScaler()
 train = stding.fit_transform(train)
 test = stding.transform(test)
 
-# PCA
-pcaing = PCA(n_components=20)
-train = pcaing.fit_transform(train)
-test = pcaing.transform(test)
+# # PCA
+# pcaing = PCA(n_components=100)
+# train = pcaing.fit_transform(train)
+# test = pcaing.transform(test)
 
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_iter': [100, 200, 400, 800, 1600], 'loss': ['log']}
-
+param_grid = {'loss': ['log'], 'l1_ratio': [0], 'alpha': [0.005], 'n_iter': [100], 'eta0': [0.3],
+              'learning_rate': ['invscaling']}
 for params in ParameterGrid(param_grid):
     print params
-    classifier = SGDClassifier(n_iter=params['n_iter'], loss=params['loss'])
+    classifier = SGDClassifier(loss=params['loss'], penalty='elasticnet', l1_ratio=params['l1_ratio'],
+                               alpha=params['alpha'], n_iter=params['n_iter'], learning_rate=params['learning_rate'],
+                               eta0=params['eta0'])
 
     # CV
     cv_n = 2

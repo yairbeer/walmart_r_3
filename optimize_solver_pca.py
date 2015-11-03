@@ -24,7 +24,7 @@ train = stding.fit_transform(train)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'pca_est': [200], 'n_estimators': [100], 'max_features': [0.1, 0.2, 0.4], 'max_depth': [10, 20, 30],
+param_grid = {'pca_est': [200], 'n_estimators': [100], 'max_features': [0.2], 'max_depth': [20],
               'min_samples_split': [1], 'min_samples_leaf': [1]}
 
 for params in ParameterGrid(param_grid):
@@ -59,3 +59,19 @@ for params in ParameterGrid(param_grid):
         best_metric = np.mean(metric)
         best_params = params
     print 'The best metric is: ', best_metric, 'for the params: ', best_params
+
+
+# {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.1, 'max_depth': 10}
+# The log loss is:  1.64730800158
+# The best metric is:  1.64730800158 for the params:  {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.1, 'max_depth': 10}
+# {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.2, 'max_depth': 10}
+# The log loss is:  1.57737994832
+# The best metric is:  1.57737994832 for the params:  {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.2, 'max_depth': 10}
+# {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.4, 'max_depth': 10}
+# The log loss is:  1.53740425344
+# The best metric is:  1.53740425344 for the params:  {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.4, 'max_depth': 10}
+# {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.1, 'max_depth': 20}
+# The log loss is:  1.42591819792
+# The best metric is:  1.42591819792 for the params:  {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.1, 'max_depth': 20}
+# {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.2, 'max_depth': 20}
+# The best metric is:  1.38658886027 for the params:  {'pca_est': 200, 'min_samples_leaf': 1, 'n_estimators': 100, 'min_samples_split': 1, 'max_features': 0.2, 'max_depth': 20}
