@@ -74,7 +74,13 @@ train_num_deps_b = (np.array(train_data_count_dep_bought) > 0)
 train_num_deps_b = pd.DataFrame(np.sum(train_num_deps_b, axis=1))
 train_num_deps_b.columns = ['Deps_num_B']
 train_num_deps_b.index = train_data_count_dep_bought.index
-print train_num_deps_b
+train_num_deps_b_values = train_num_deps_b['Deps_num_B'].value_counts()
+train_num_deps_b_values = list(train_num_deps_b_values.index)
+for i in range(len(train_num_deps_b_values)):
+    print train_num_deps_b_values[i]
+    cur_num = train_num_deps_b['Deps_num_B'] == train_num_deps_b_values[i]
+    print train_result[cur_num].value_counts()
+
 
 # returned Department
 tmp_table = np.array(train_data_count_dep) * train_returned_items
@@ -88,4 +94,12 @@ train_num_deps_r = (np.array(train_data_count_dep_returned) < 0)
 train_num_deps_r = pd.DataFrame(np.sum(train_num_deps_r, axis=1))
 train_num_deps_r.columns = ['Deps_num_R']
 train_num_deps_r.index = train_data_count_dep_bought.index
-print train_num_deps_r
+train_num_deps_r_values = train_num_deps_r['Deps_num_R'].astype('int').value_counts()
+train_num_deps_r_values = list(train_num_deps_r_values.index)
+print train_num_deps_r_values
+for i in range(len(train_num_deps_r_values)):
+    print train_num_deps_r_values[i]
+    cur_num = train_num_deps_r['Deps_num_R'] == train_num_deps_r_values[i]
+    print train_result[cur_num].value_counts()
+# print train_num_deps_r
+
