@@ -26,7 +26,7 @@ test = stding.transform(test)
 
 # PCA
 pcaing = PCA(n_components=200)
-train = pcaing.fit_transform(train)h
+train = pcaing.fit_transform(train)
 test = pcaing.transform(test)
 
 print 'start CV'
