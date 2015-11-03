@@ -60,6 +60,11 @@ train_data_count_dep_bought.index = tmp_index
 train_data_count_dep_bought = train_data_count_dep_bought.groupby(by=train_data_count_dep_bought.index, sort=False).sum()
 train_data_count_dep_bought = add_prefix(train_data_count_dep_bought, 'Dep_B_')
 
+train_num_deps_b = (np.array(train_data_count_dep_bought) > 0)
+train_num_deps_b = pd.DataFrame(np.sum(train_num_deps_b, axis=1))
+train_num_deps_b.columns = ['Deps_num_B']
+train_num_deps_b.index = train_data_count_dep_bought.index
+
 # returned Department
 tmp_table = np.array(train_data_count_dep) * train_returned_items
 train_data_count_dep_returned = pd.DataFrame(tmp_table)
@@ -67,6 +72,11 @@ train_data_count_dep_returned.columns = tmp_columns
 train_data_count_dep_returned.index = tmp_index
 train_data_count_dep_returned = train_data_count_dep_returned.groupby(by=train_data_count_dep_returned.index, sort=False).sum()
 train_data_count_dep_returned = add_prefix(train_data_count_dep_returned, 'Dep_R_')
+
+train_num_deps_r = (np.array(train_data_count_dep_returned) < 0)
+train_num_deps_r = pd.DataFrame(np.sum(train_num_deps_r, axis=1))
+train_num_deps_r.columns = ['Deps_num_R']
+train_num_deps_r.index = train_data_count_dep_returned.index
 
 train_data_tot_items = trainset['ScanCount'].groupby(by=trainset.index, sort=False).sum()
 train_bought_items = pd.DataFrame(train_bought_items.ravel())
@@ -152,7 +162,7 @@ train_data_count_upc = train_data_count_upc.groupby(by=train_data_count_upc.inde
 train_data_count_upc = add_prefix(train_data_count_upc, 'Upc_')
 
 train = pd.concat([train_data_not_count, train_data_count_dep_bought, train_data_count_dep_returned,
-                   train_data_count_fln_bought, train_data_count_fln_returned,
+                   train_num_deps_b, train_num_deps_r, train_data_count_fln_bought, train_data_count_fln_returned,
                    train_data_count_upc, train_data_bought_items, train_data_returned_items], axis=1)
 train = remove_sparse(train)
 
@@ -182,6 +192,11 @@ test_data_count_dep_bought.index = tmp_index
 test_data_count_dep_bought = test_data_count_dep_bought.groupby(by=test_data_count_dep_bought.index, sort=False).sum()
 test_data_count_dep_bought = add_prefix(test_data_count_dep_bought, 'Dep_B_')
 
+test_num_deps_b = (np.array(test_data_count_dep_bought) > 0)
+test_num_deps_b = pd.DataFrame(np.sum(test_num_deps_b, axis=1))
+test_num_deps_b.columns = ['Deps_num_B']
+test_num_deps_b.index = test_data_count_dep_bought.index
+
 # returned department
 tmp_table = np.array(test_data_count_dep) * test_returned_items
 test_data_count_dep_returned = pd.DataFrame(tmp_table)
@@ -189,6 +204,11 @@ test_data_count_dep_returned.columns = tmp_columns
 test_data_count_dep_returned.index = tmp_index
 test_data_count_dep_returned = test_data_count_dep_returned.groupby(by=test_data_count_dep_returned.index, sort=False).sum()
 test_data_count_dep_returned = add_prefix(test_data_count_dep_returned, 'Dep_R_')
+
+test_num_deps_r = (np.array(test_data_count_dep_returned) < 0)
+test_num_deps_r = pd.DataFrame(np.sum(test_num_deps_r, axis=1))
+test_num_deps_r.columns = ['Deps_num_R']
+test_num_deps_r.index = test_data_count_dep_returned.index
 
 test_data_tot_items = testset['ScanCount'].groupby(by=testset.index, sort=False).sum()
 test_bought_items = pd.DataFrame(test_bought_items.ravel())
@@ -269,7 +289,7 @@ test_data_count_upc = test_data_count_upc.groupby(by=test_data_count_upc.index, 
 test_data_count_upc = add_prefix(test_data_count_upc, 'Upc_')
 
 test = pd.concat([test_data_not_count, test_data_count_dep_bought, test_data_count_dep_returned,
-                  test_data_count_fln_bought, test_data_count_fln_returned,
+                  test_num_deps_b, test_num_deps_r, test_data_count_fln_bought, test_data_count_fln_returned,
                   test_data_count_upc, test_data_bought_items, test_data_returned_items], axis=1)
 test = remove_sparse(test)
 
@@ -288,5 +308,5 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_500_sep_dep_fln_b_r.csv")
-test.to_csv("test_dummied_500_sep_dep_fln_b_r.csv")
+train.to_csv("train_dummied_500_sep_dep_fln_b_r_v2.csv")
+test.to_csv("test_dummied_500_sep_dep_fln_b_r_v2.csv")

@@ -1,7 +1,6 @@
 from sklearn.grid_search import ParameterGrid
 import pandas as pd
 import numpy as np
-import random
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
