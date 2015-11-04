@@ -364,24 +364,24 @@ test_data_count_upc.index = tmp_index
 test_data_count_upc = test_data_count_upc.groupby(by=test_data_count_upc.index, sort=False).sum()
 test_data_count_upc = add_prefix(test_data_count_upc, 'Upc_')
 
-test_dep_count_b = np.ones((n_test, 1))
+test_dep_count_b = np.ones((test_data_count_fln_bought.shape[0], 1))
 test_dep_count_b = pd.DataFrame(test_dep_count_b)
 test_dep_count_b.index = test_data_count_upc.index
-test_dep_count_r = np.ones((n_test, 1))
+test_dep_count_r = np.ones((test_data_count_fln_bought.shape[0], 1))
 test_dep_count_r = pd.DataFrame(test_dep_count_r)
 test_dep_count_r.index = test_data_count_upc.index
 
-test_fln_count_b = np.ones((n_test, 1))
+test_fln_count_b = np.ones((test_data_count_fln_bought.shape[0], 1))
 test_fln_count_b = pd.DataFrame(test_fln_count_b)
 test_fln_count_b.index = test_data_count_upc.index
-test_fln_count_r = np.ones((n_test, 1))
+test_fln_count_r = np.ones((test_data_count_fln_bought.shape[0], 1))
 test_fln_count_r = pd.DataFrame(test_fln_count_r)
 test_fln_count_r.index = test_data_count_upc.index
 
-test_upc_count_b = np.ones((n_test, 1))
+test_upc_count_b = np.ones((test_data_count_fln_bought.shape[0], 1))
 test_upc_count_b = pd.DataFrame(test_upc_count_b)
 test_upc_count_b.index = test_data_count_upc.index
-test_upc_count_r = np.ones((n_test, 1))
+test_upc_count_r = np.ones((test_data_count_fln_bought.shape[0], 1))
 test_upc_count_r = pd.DataFrame(test_upc_count_r)
 test_upc_count_r.index = test_data_count_upc.index
 
