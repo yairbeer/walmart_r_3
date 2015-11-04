@@ -10,7 +10,7 @@ __author__ = 'WiBeer'
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r.csv")
+train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
 train = np.array(train)
 
@@ -23,7 +23,7 @@ train = stding.fit_transform(train)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [500], 'max_features': [.06, .08, 0.1], 'max_depth': [60, 70, 80],
+param_grid = {'n_estimators': [50], 'max_features': [.05, .1, 0.2], 'max_depth': [30, 50, 70],
               'min_samples_split': [4, 8], 'min_samples_leaf': [1]}
 
 for params in ParameterGrid(param_grid):

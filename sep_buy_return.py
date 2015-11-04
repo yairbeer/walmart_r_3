@@ -80,7 +80,7 @@ train_returned_items.index = trainset.index
 train_returned_items.columns = ['Returned']
 train_data_returned_items = train_returned_items.groupby(by=trainset.index, sort=False).sum()
 
-sparsity = 800
+sparsity = 200
 
 # find most bought FinelineNumber
 print 'remove sparse train FinelineNumber'
@@ -499,5 +499,5 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_500_sep_dep_fln_b_r_v2.csv")
-test.to_csv("test_dummied_500_sep_dep_fln_b_r_v2.csv")
+train.to_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
+test.to_csv("test_dummied_200_sep_dep_fln_b_r_v2.csv")
