@@ -23,7 +23,7 @@ train = stding.fit_transform(train)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [25], 'max_depth': [10, 20, 40], 'max_features': [0.05, 0.1, 0.2]}
+param_grid = {'n_estimators': [25], 'max_depth': [10], 'max_features': [0.2]}
 
 for params in ParameterGrid(param_grid):
     print params
