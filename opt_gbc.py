@@ -10,7 +10,7 @@ __author__ = 'WiBeer'
 """
 data ML
 """
-train = pd.DataFrame.from_csv("train_dummied_500_sep_dep_fln_b_r.csv")
+train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
 train_result = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
 train = np.array(train)
 
