@@ -37,14 +37,14 @@ train_result = train_result.groupby(by=train_result.index, sort=False).mean()
 dep_count = train_result
 dep_count.columns = ['dep_num']
 
-# indexes = list(trainset.index.values)
-# for i in range(len(indexes)):
-#     single_vis = trainset.loc[indexes[i]]
-#     if type(single_vis['DepartmentDescription']) == 'str':
-#         dep_count.loc[indexes[i]] = 1
-#     else:
-#         print single_vis['DepartmentDescription'].value_counts()
-#         print len(list(single_vis['DepartmentDescription'].value_counts()))
+indexes = list(trainset.index.values)
+for i in range(len(indexes)):
+    single_vis = trainset.loc[indexes[i]]
+    if single_vis['DepartmentDescription'].shape[0] == 1:
+        dep_count.loc[indexes[i]] = 1
+    else:
+        print single_vis['DepartmentDescription'].value_counts()
+        print len(list(single_vis['DepartmentDescription'].value_counts()))
 
 n_trips = train_result.shape[0]
 
