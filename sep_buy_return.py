@@ -249,7 +249,7 @@ train = pd.concat([train_data_not_count, train_data_count_dep_bought, train_data
                    train_data_count_upc, train_data_bought_items, train_data_returned_items,
                    train_dep_count_b, train_dep_count_r, train_fln_count_b, train_fln_count_r,
                    train_upc_count_b, train_upc_count_r, train_data_bought_items, train_data_returned_items], axis=1)
-train = remove_sparse(train)
+# train = remove_sparse(train)
 
 # preprocess test data
 print 'read test data'
@@ -258,97 +258,6 @@ testset = testset.fillna('-999')
 
 test_data_not_count = pd.get_dummies(testset['Weekday'])
 test_data_not_count = test_data_not_count.groupby(by=test_data_not_count.index, sort=False).mean()
-
-test_dep_count_b = train_result.copy(deep=True)
-test_dep_count_r = train_result.copy(deep=True)
-
-test_fln_count_b = train_result.copy(deep=True)
-test_fln_count_r = train_result.copy(deep=True)
-
-test_upc_count_b = train_result.copy(deep=True)
-test_upc_count_r = train_result.copy(deep=True)
-
-test_dep_count_b.columns = ['dep_num_B']
-test_dep_count_r.columns = ['dep_num_R']
-
-test_fln_count_b.columns = ['fln_num_B']
-test_fln_count_r.columns = ['fln_num_R']
-
-test_upc_count_b.columns = ['upc_num_B']
-test_upc_count_r.columns = ['upc_num_R']
-indexes = list(test_data_not_count.index.values)
-
-print 'Department counter'
-for i in range(len(indexes)):
-    single_vis = testset.loc[indexes[i]]
-    bought = np.array(single_vis['ScanCount'] > 0)
-    returned = np.array(single_vis['ScanCount'] < 0)
-    single_vis_bought = single_vis.iloc[bought]
-    single_vis_returned = single_vis.iloc[returned]
-
-    if single_vis_bought.shape[0] == 0:
-        test_dep_count_b.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_bought.shape) == 1:
-            test_dep_count_b.loc[indexes[i]] = 1
-        else:
-            test_dep_count_b.loc[indexes[i]] = len(list(single_vis_bought['DepartmentDescription'].value_counts()))
-
-    if single_vis_returned.shape[0] == 0:
-        test_dep_count_r.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_returned.shape) == 1:
-            test_dep_count_r.loc[indexes[i]] = 1
-        else:
-            test_dep_count_r.loc[indexes[i]] = len(list(single_vis_returned['DepartmentDescription'].value_counts()))
-
-print 'fln counter'
-for i in range(len(indexes)):
-    single_vis = testset.loc[indexes[i]]
-    bought = np.array(single_vis['ScanCount'] > 0)
-    returned = np.array(single_vis['ScanCount'] < 0)
-    single_vis_bought = single_vis.iloc[bought]
-    single_vis_returned = single_vis.iloc[returned]
-
-    if single_vis_bought.shape[0] == 0:
-        test_fln_count_b.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_bought.shape) == 1:
-            test_fln_count_b.loc[indexes[i]] = 1
-        else:
-            test_fln_count_b.loc[indexes[i]] = len(list(single_vis_bought['FinelineNumber'].value_counts()))
-
-    if single_vis_returned.shape[0] == 0:
-        test_fln_count_r.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_returned.shape) == 1:
-            test_fln_count_r.loc[indexes[i]] = 1
-        else:
-            test_fln_count_r.loc[indexes[i]] = len(list(single_vis_returned['FinelineNumber'].value_counts()))
-
-print 'upc counter'
-for i in range(len(indexes)):
-    single_vis = testset.loc[indexes[i]]
-    bought = np.array(single_vis['ScanCount'] > 0)
-    returned = np.array(single_vis['ScanCount'] < 0)
-    single_vis_bought = single_vis.iloc[bought]
-    single_vis_returned = single_vis.iloc[returned]
-    
-    if single_vis_bought.shape[0] == 0:
-        test_upc_count_b.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_bought.shape) == 1:
-            test_upc_count_b.loc[indexes[i]] = 1
-        else:
-            test_upc_count_b.loc[indexes[i]] = len(list(single_vis_bought['Upc'].value_counts()))
-    
-    if single_vis_returned.shape[0] == 0:
-        test_upc_count_r.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_returned.shape) == 1:
-            test_upc_count_r.loc[indexes[i]] = 1
-        else:
-            test_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
 n_test = testset.shape[0]
 n_trips_test = test_data_not_count.shape[0]
@@ -455,11 +364,114 @@ test_data_count_upc.index = tmp_index
 test_data_count_upc = test_data_count_upc.groupby(by=test_data_count_upc.index, sort=False).sum()
 test_data_count_upc = add_prefix(test_data_count_upc, 'Upc_')
 
+test_dep_count_b = np.ones((n_test, 1))
+test_dep_count_b = pd.DataFrame(test_dep_count_b)
+test_dep_count_b.index = test_data_count_upc.index
+test_dep_count_r = np.ones((n_test, 1))
+test_dep_count_r = pd.DataFrame(test_dep_count_r)
+test_dep_count_r.index = test_data_count_upc.index
+
+test_fln_count_b = np.ones((n_test, 1))
+test_fln_count_b = pd.DataFrame(test_fln_count_b)
+test_fln_count_b.index = test_data_count_upc.index
+test_fln_count_r = np.ones((n_test, 1))
+test_fln_count_r = pd.DataFrame(test_fln_count_r)
+test_fln_count_r.index = test_data_count_upc.index
+
+test_upc_count_b = np.ones((n_test, 1))
+test_upc_count_b = pd.DataFrame(test_upc_count_b)
+test_upc_count_b.index = test_data_count_upc.index
+test_upc_count_r = np.ones((n_test, 1))
+test_upc_count_r = pd.DataFrame(test_upc_count_r)
+test_upc_count_r.index = test_data_count_upc.index
+
+test_dep_count_b.columns = ['dep_num_B']
+test_dep_count_r.columns = ['dep_num_R']
+
+test_fln_count_b.columns = ['fln_num_B']
+test_fln_count_r.columns = ['fln_num_R']
+
+test_upc_count_b.columns = ['upc_num_B']
+test_upc_count_r.columns = ['upc_num_R']
+indexes = list(test_data_count_upc.index.values)
+
+print 'Department counter'
+for i in range(len(indexes)):
+    single_vis = testset.loc[indexes[i]]
+    bought = np.array(single_vis['ScanCount'] > 0)
+    returned = np.array(single_vis['ScanCount'] < 0)
+    single_vis_bought = single_vis.iloc[bought]
+    single_vis_returned = single_vis.iloc[returned]
+
+    if single_vis_bought.shape[0] == 0:
+        test_dep_count_b.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_bought.shape) == 1:
+            test_dep_count_b.loc[indexes[i]] = 1
+        else:
+            test_dep_count_b.loc[indexes[i]] = len(list(single_vis_bought['DepartmentDescription'].value_counts()))
+
+    if single_vis_returned.shape[0] == 0:
+        test_dep_count_r.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_returned.shape) == 1:
+            test_dep_count_r.loc[indexes[i]] = 1
+        else:
+            test_dep_count_r.loc[indexes[i]] = len(list(single_vis_returned['DepartmentDescription'].value_counts()))
+
+print 'fln counter'
+for i in range(len(indexes)):
+    single_vis = testset.loc[indexes[i]]
+    bought = np.array(single_vis['ScanCount'] > 0)
+    returned = np.array(single_vis['ScanCount'] < 0)
+    single_vis_bought = single_vis.iloc[bought]
+    single_vis_returned = single_vis.iloc[returned]
+
+    if single_vis_bought.shape[0] == 0:
+        test_fln_count_b.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_bought.shape) == 1:
+            test_fln_count_b.loc[indexes[i]] = 1
+        else:
+            test_fln_count_b.loc[indexes[i]] = len(list(single_vis_bought['FinelineNumber'].value_counts()))
+
+    if single_vis_returned.shape[0] == 0:
+        test_fln_count_r.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_returned.shape) == 1:
+            test_fln_count_r.loc[indexes[i]] = 1
+        else:
+            test_fln_count_r.loc[indexes[i]] = len(list(single_vis_returned['FinelineNumber'].value_counts()))
+
+print 'upc counter'
+for i in range(len(indexes)):
+    single_vis = testset.loc[indexes[i]]
+    bought = np.array(single_vis['ScanCount'] > 0)
+    returned = np.array(single_vis['ScanCount'] < 0)
+    single_vis_bought = single_vis.iloc[bought]
+    single_vis_returned = single_vis.iloc[returned]
+
+    if single_vis_bought.shape[0] == 0:
+        test_upc_count_b.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_bought.shape) == 1:
+            test_upc_count_b.loc[indexes[i]] = 1
+        else:
+            test_upc_count_b.loc[indexes[i]] = len(list(single_vis_bought['Upc'].value_counts()))
+
+    if single_vis_returned.shape[0] == 0:
+        test_upc_count_r.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_returned.shape) == 1:
+            test_upc_count_r.loc[indexes[i]] = 1
+        else:
+            test_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
+
 test = pd.concat([test_data_not_count, test_data_count_dep_bought, test_data_count_dep_returned,
                   test_data_count_fln_bought, test_data_count_fln_returned, test_data_count_upc,
                   test_dep_count_b, test_dep_count_r, test_fln_count_b, test_fln_count_r,
                   test_upc_count_b, test_upc_count_r, test_data_bought_items, test_data_returned_items], axis=1)
-test = remove_sparse(test)
+# test = remove_sparse(test)
 
 # Find common coloumns
 col_train = list(train.columns.values)
