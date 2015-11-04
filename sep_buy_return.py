@@ -36,97 +36,6 @@ train_result = train_result.groupby(by=train_result.index, sort=False).mean()
 print train_result.value_counts()
 # train_result.to_csv("train_result.csv")
 
-train_dep_count_b = train_result.copy(deep=True)
-train_dep_count_r = train_result.copy(deep=True)
-
-train_fln_count_b = train_result.copy(deep=True)
-train_fln_count_r = train_result.copy(deep=True)
-
-train_upc_count_b = train_result.copy(deep=True)
-train_upc_count_r = train_result.copy(deep=True)
-
-train_dep_count_b.columns = ['dep_num_B']
-train_dep_count_r.columns = ['dep_num_R']
-
-train_fln_count_b.columns = ['fln_num_B']
-train_fln_count_r.columns = ['fln_num_R']
-
-train_upc_count_b.columns = ['upc_num_B']
-train_upc_count_r.columns = ['upc_num_R']
-indexes = list(train_result.index.values)
-
-print 'Department counter'
-for i in range(len(indexes)):
-    single_vis = trainset.loc[indexes[i]]
-    bought = np.array(single_vis['ScanCount'] > 0)
-    returned = np.array(single_vis['ScanCount'] < 0)
-    single_vis_bought = single_vis.iloc[bought]
-    single_vis_returned = single_vis.iloc[returned]
-
-    if single_vis_bought.shape[0] == 0:
-        train_dep_count_b.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_bought.shape) == 1:
-            train_dep_count_b.loc[indexes[i]] = 1
-        else:
-            train_dep_count_b.loc[indexes[i]] = len(list(single_vis_bought['DepartmentDescription'].value_counts()))
-
-    if single_vis_returned.shape[0] == 0:
-        train_dep_count_r.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_returned.shape) == 1:
-            train_dep_count_r.loc[indexes[i]] = 1
-        else:
-            train_dep_count_r.loc[indexes[i]] = len(list(single_vis_returned['DepartmentDescription'].value_counts()))
-
-print 'fln counter'
-for i in range(len(indexes)):
-    single_vis = trainset.loc[indexes[i]]
-    bought = np.array(single_vis['ScanCount'] > 0)
-    returned = np.array(single_vis['ScanCount'] < 0)
-    single_vis_bought = single_vis.iloc[bought]
-    single_vis_returned = single_vis.iloc[returned]
-
-    if single_vis_bought.shape[0] == 0:
-        train_fln_count_b.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_bought.shape) == 1:
-            train_fln_count_b.loc[indexes[i]] = 1
-        else:
-            train_fln_count_b.loc[indexes[i]] = len(list(single_vis_bought['FinelineNumber'].value_counts()))
-
-    if single_vis_returned.shape[0] == 0:
-        train_fln_count_r.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_returned.shape) == 1:
-            train_fln_count_r.loc[indexes[i]] = 1
-        else:
-            train_fln_count_r.loc[indexes[i]] = len(list(single_vis_returned['FinelineNumber'].value_counts()))
-
-print 'upc counter'
-for i in range(len(indexes)):
-    single_vis = trainset.loc[indexes[i]]
-    bought = np.array(single_vis['ScanCount'] > 0)
-    returned = np.array(single_vis['ScanCount'] < 0)
-    single_vis_bought = single_vis.iloc[bought]
-    single_vis_returned = single_vis.iloc[returned]
-    
-    if single_vis_bought.shape[0] == 0:
-        train_upc_count_b.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_bought.shape) == 1:
-            train_upc_count_b.loc[indexes[i]] = 1
-        else:
-            train_upc_count_b.loc[indexes[i]] = len(list(single_vis_bought['Upc'].value_counts()))
-    
-    if single_vis_returned.shape[0] == 0:
-        train_upc_count_r.loc[indexes[i]] = 0
-    else:
-        if len(single_vis_returned.shape) == 1:
-            train_upc_count_r.loc[indexes[i]] = 1
-        else:
-            train_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
-
 n_trips = train_result.shape[0]
 
 train_data_not_count = pd.get_dummies(trainset['Weekday'])
@@ -243,6 +152,109 @@ train_data_count_upc.columns = tmp_columns
 train_data_count_upc.index = tmp_index
 train_data_count_upc = train_data_count_upc.groupby(by=train_data_count_upc.index, sort=False).sum()
 train_data_count_upc = add_prefix(train_data_count_upc, 'Upc_')
+
+train_dep_count_b = np.ones((train_data_count_fln_bought.shape[0], 1))
+train_dep_count_b = pd.DataFrame(train_dep_count_b)
+train_dep_count_b.index = train_data_count_upc.index
+train_dep_count_r = np.ones((train_data_count_fln_bought.shape[0], 1))
+train_dep_count_r = pd.DataFrame(train_dep_count_r)
+train_dep_count_r.index = train_data_count_upc.index
+
+train_fln_count_b = np.ones((train_data_count_fln_bought.shape[0], 1))
+train_fln_count_b = pd.DataFrame(train_fln_count_b)
+train_fln_count_b.index = train_data_count_upc.index
+train_fln_count_r = np.ones((train_data_count_fln_bought.shape[0], 1))
+train_fln_count_r = pd.DataFrame(train_fln_count_r)
+train_fln_count_r.index = train_data_count_upc.index
+
+train_upc_count_b = np.ones((train_data_count_fln_bought.shape[0], 1))
+train_upc_count_b = pd.DataFrame(train_upc_count_b)
+train_upc_count_b.index = train_data_count_upc.index
+train_upc_count_r = np.ones((train_data_count_fln_bought.shape[0], 1))
+train_upc_count_r = pd.DataFrame(train_upc_count_r)
+train_upc_count_r.index = train_data_count_upc.index
+
+train_dep_count_b.columns = ['dep_num_B']
+train_dep_count_r.columns = ['dep_num_R']
+
+train_fln_count_b.columns = ['fln_num_B']
+train_fln_count_r.columns = ['fln_num_R']
+
+train_upc_count_b.columns = ['upc_num_B']
+train_upc_count_r.columns = ['upc_num_R']
+indexes = list(train_data_count_upc.index.values)
+
+print 'Department counter'
+for i in range(len(indexes)):
+    single_vis = trainset.loc[indexes[i]]
+    bought = np.array(single_vis['ScanCount'] > 0)
+    returned = np.array(single_vis['ScanCount'] < 0)
+    single_vis_bought = single_vis.iloc[bought]
+    single_vis_returned = single_vis.iloc[returned]
+
+    if single_vis_bought.shape[0] == 0:
+        train_dep_count_b.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_bought.shape) == 1:
+            train_dep_count_b.loc[indexes[i]] = 1
+        else:
+            train_dep_count_b.loc[indexes[i]] = len(list(single_vis_bought['DepartmentDescription'].value_counts()))
+
+    if single_vis_returned.shape[0] == 0:
+        train_dep_count_r.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_returned.shape) == 1:
+            train_dep_count_r.loc[indexes[i]] = 1
+        else:
+            train_dep_count_r.loc[indexes[i]] = len(list(single_vis_returned['DepartmentDescription'].value_counts()))
+
+print 'fln counter'
+for i in range(len(indexes)):
+    single_vis = trainset.loc[indexes[i]]
+    bought = np.array(single_vis['ScanCount'] > 0)
+    returned = np.array(single_vis['ScanCount'] < 0)
+    single_vis_bought = single_vis.iloc[bought]
+    single_vis_returned = single_vis.iloc[returned]
+
+    if single_vis_bought.shape[0] == 0:
+        train_fln_count_b.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_bought.shape) == 1:
+            train_fln_count_b.loc[indexes[i]] = 1
+        else:
+            train_fln_count_b.loc[indexes[i]] = len(list(single_vis_bought['FinelineNumber'].value_counts()))
+
+    if single_vis_returned.shape[0] == 0:
+        train_fln_count_r.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_returned.shape) == 1:
+            train_fln_count_r.loc[indexes[i]] = 1
+        else:
+            train_fln_count_r.loc[indexes[i]] = len(list(single_vis_returned['FinelineNumber'].value_counts()))
+
+print 'upc counter'
+for i in range(len(indexes)):
+    single_vis = trainset.loc[indexes[i]]
+    bought = np.array(single_vis['ScanCount'] > 0)
+    returned = np.array(single_vis['ScanCount'] < 0)
+    single_vis_bought = single_vis.iloc[bought]
+    single_vis_returned = single_vis.iloc[returned]
+
+    if single_vis_bought.shape[0] == 0:
+        train_upc_count_b.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_bought.shape) == 1:
+            train_upc_count_b.loc[indexes[i]] = 1
+        else:
+            train_upc_count_b.loc[indexes[i]] = len(list(single_vis_bought['Upc'].value_counts()))
+
+    if single_vis_returned.shape[0] == 0:
+        train_upc_count_r.loc[indexes[i]] = 0
+    else:
+        if len(single_vis_returned.shape) == 1:
+            train_upc_count_r.loc[indexes[i]] = 1
+        else:
+            train_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
 train = pd.concat([train_data_not_count, train_data_count_dep_bought, train_data_count_dep_returned,
                    train_data_count_fln_bought, train_data_count_fln_returned,
