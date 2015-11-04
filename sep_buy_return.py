@@ -258,8 +258,7 @@ for i in range(len(indexes)):
 
 train = pd.concat([train_data_not_count, train_data_count_dep_bought, train_data_count_dep_returned,
                    train_data_count_fln_bought, train_data_count_fln_returned,
-                   train_data_count_upc, train_data_bought_items, train_data_returned_items,
-                   train_dep_count_b, train_dep_count_r, train_fln_count_b, train_fln_count_r,
+                   train_data_count_upc, train_dep_count_b, train_dep_count_r, train_fln_count_b, train_fln_count_r,
                    train_upc_count_b, train_upc_count_r, train_data_bought_items, train_data_returned_items], axis=1)
 # train = remove_sparse(train)
 
