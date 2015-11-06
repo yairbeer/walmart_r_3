@@ -41,7 +41,7 @@ for i in range(train.shape[1]):
 
 del train_arr
 
-print len(chi2_cols)
+print len(chi2_cols), ' chi2 columns'
 train = train[chi2_cols]
 
 # Standardizing
@@ -51,7 +51,7 @@ train = stding.fit_transform(train)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [50], 'max_depth': [5, 10, 20], 'max_features': [0.05, 0.1, 0.2, 0.4]}
+param_grid = {'n_estimators': [50], 'max_depth': [5, 10, 20], 'max_features': [0.4, 0.6]}
 
 
 for params in ParameterGrid(param_grid):
@@ -60,7 +60,7 @@ for params in ParameterGrid(param_grid):
                                             max_features=params['max_features'])
 
     # CV
-    cv_n = 4
+    cv_n = 2
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
     metric = []

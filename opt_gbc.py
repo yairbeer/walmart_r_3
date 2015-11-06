@@ -53,3 +53,5 @@ for params in ParameterGrid(param_grid):
         best_metric = np.mean(metric)
         best_params = params
     print 'The best metric is: ', best_metric, 'for the params: ', best_params
+
+# The best metric is:  0.94436382066 for the params:  {'max_features': 0.4, 'n_estimators': 50, 'max_depth': 5}
