@@ -56,6 +56,7 @@ classifier = GradientBoostingClassifier(n_estimators=50, max_depth=5, max_featur
 classifier.fit(train, train_result)
 
 test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v2.csv")
+test.fillna(0)
 test = test[chi2_cols]
 test = np.array(test)
 test = stding.transform(test)
