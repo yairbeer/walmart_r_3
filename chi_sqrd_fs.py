@@ -32,31 +32,30 @@ chi2_params = chi2(train_arr, train_result)
 # for i in range(train_arr.shape[1]):
 #     print col_list[i], chi2_params[0][i]
 
-# filtering low chi2 cols
-chi2_lim = 1000
-chi2_cols = []
-for i in range(train.shape[1]):
-    if chi2_params[0][i] > chi2_lim:
-        chi2_cols.append(col_list[i])
-
 del train_arr
-
-print len(chi2_cols), ' chi2 columns'
-train = train[chi2_cols]
-
-# Standardizing
-stding = StandardScaler()
-train = stding.fit_transform(train)
 
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [50], 'max_depth': [5], 'max_features': [0.6],
-              'learning_rate': [0.03, 0.06, 0.1, 0.3, 0.6]}
-
+param_grid = {'n_estimators': [25], 'max_depth': [5], 'max_features': [0.8],
+              'learning_rate': [0.1, 0.3, 0.6], 'chi2_lim': [10000, 5000, 1000, 500]}
 
 for params in ParameterGrid(param_grid):
     print params
+
+    # filtering low chi2 cols
+    chi2_lim = params['chi2_lim']
+    chi2_cols = []
+    for i in range(train.shape[1]):
+        if chi2_params[0][i] > chi2_lim:
+            chi2_cols.append(col_list[i])
+
+    print len(chi2_cols), ' chi2 columns'
+    train_arr = train[chi2_cols]
+
+    # Standardizing
+    stding = StandardScaler()
+    train_arr = stding.fit_transform(train_arr)
     classifier = GradientBoostingClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
                                             max_features=params['max_features'], learning_rate=params['learning_rate'])
 
@@ -66,7 +65,7 @@ for params in ParameterGrid(param_grid):
 
     metric = []
     for train_index, test_index in kf:
-        X_train, X_test = train[train_index, :], train[test_index, :]
+        X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
         y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
         # train machine learning
         classifier.fit(X_train, y_train)
