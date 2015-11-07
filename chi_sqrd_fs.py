@@ -51,13 +51,14 @@ train = stding.fit_transform(train)
 print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [50], 'max_depth': [5, 10, 20], 'max_features': [0.4, 0.6]}
+param_grid = {'n_estimators': [50], 'max_depth': [5], 'max_features': [0.6],
+              'learning_rate': [0.03, 0.06, 0.1, 0.3, 0.6]}
 
 
 for params in ParameterGrid(param_grid):
     print params
     classifier = GradientBoostingClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
-                                            max_features=params['max_features'])
+                                            max_features=params['max_features'], learning_rate=params['learning_rate'])
 
     # CV
     cv_n = 2
