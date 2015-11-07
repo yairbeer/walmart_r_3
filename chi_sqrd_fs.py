@@ -34,11 +34,10 @@ chi2_params = chi2(train_arr, train_result)
 
 del train_arr
 
-print 'start CV'
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [25], 'max_depth': [5], 'max_features': [0.8],
-              'learning_rate': [0.1, 0.3, 0.6], 'chi2_lim': [10000, 5000, 1000, 500]}
+param_grid = {'n_estimators': [40], 'max_depth': [5], 'max_features': [0.6],
+              'learning_rate': [0.025, 0.05, 0.1, 0.2, 0.4], 'chi2_lim': [1000, 2000]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -51,13 +50,16 @@ for params in ParameterGrid(param_grid):
             chi2_cols.append(col_list[i])
 
     print len(chi2_cols), ' chi2 columns'
-    train_arr = train[chi2_cols]
+    train_arr = train.copy(deep=True)
+    train_arr = train_arr[chi2_cols]
 
     # Standardizing
     stding = StandardScaler()
     train_arr = stding.fit_transform(train_arr)
     classifier = GradientBoostingClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
                                             max_features=params['max_features'], learning_rate=params['learning_rate'])
+
+    print 'start CV'
 
     # CV
     cv_n = 2
@@ -83,4 +85,13 @@ for params in ParameterGrid(param_grid):
         best_params = params
     print 'The best metric is: ', best_metric, 'for the params: ', best_params
 
-# The best metric is:  0.968018334947 for the params:  {'max_features': 0.1, 'min_samples_split': 15, 'n_estimators': 100, 'max_depth': 60, 'min_samples_leaf': 1}
+# {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 10000}
+# 93  chi2 columns
+# start CV
+# The log loss is:  1.03566846139
+# The best metric is:  1.03566846139 for the params:  {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 10000}
+# {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 5000}
+# 155  chi2 columns
+# start CV
+# The log loss is:  1.0107879068
+# The best metric is:  1.0107879068 for the params:  {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 5000}

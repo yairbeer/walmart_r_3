@@ -51,7 +51,7 @@ train = stding.fit_transform(train)
 
 print 'start fitting'
 
-classifier = GradientBoostingClassifier(n_estimators=200, max_depth=5, max_features=0.6)
+classifier = GradientBoostingClassifier(n_estimators=200, max_depth=5, max_features=0.6, learning_rate=0.2)
 
 classifier.fit(train, train_result)
 
