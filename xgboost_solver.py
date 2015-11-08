@@ -25,6 +25,9 @@ train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
 
+test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v2.csv")
+test.fillna(0)
+
 # print train_result.shape[1], ' categorial'
 print train.shape[1], ' columns'
 
@@ -58,10 +61,13 @@ for params in ParameterGrid(param_grid):
     print len(chi2_cols), ' chi2 columns'
     train_arr = train.copy(deep=True)
     train_arr = train_arr[chi2_cols]
+    test = test[chi2_cols]
+    test = np.array(test)
 
     # Standardizing
     stding = StandardScaler()
     train_arr = stding.fit_transform(train_arr)
+    test = stding.transform(test)
 
     print 'start CV'
 
@@ -69,41 +75,20 @@ for params in ParameterGrid(param_grid):
     cv_n = 2
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
-    metric = []
-    for train_index, test_index in kf:
+    # train machine learning
+    xg_train = xgboost.DMatrix(train_arr, label=train_result_xgb)
+    xg_test = xgboost.DMatrix(test)
 
-        X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
-        y_train, y_test = train_result_xgb[train_index].ravel(), train_result_xgb[test_index].ravel()
-        # train machine learning
-        xg_train = xgboost.DMatrix(X_train, label=y_train)
-        xg_test = xgboost.DMatrix(X_test, label=y_test)
+    watchlist = [(xg_train, 'train')]
 
-        watchlist = [(xg_train, 'train'), (xg_test, 'test')]
+    num_round = params['num_round']
+    xgclassifier = xgboost.train(params, xg_train, num_round, watchlist);
 
-        num_round = params['num_round']
-        xgclassifier = xgboost.train(params, xg_train, num_round, watchlist);
+# predict
+predicted_results = xgclassifier.predict(xg_test)
+predicted_results = predicted_results.reshape(test.shape[0], 38)
 
-        # predict
-        class_pred = xgclassifier.predict(xg_test)
-        class_pred = class_pred.reshape(y_test.shape[0], 38)
-
-        # evaluate
-        # print log_loss(y_test, class_pred)
-        metric.append(log_loss(y_test, class_pred))
-
-    print 'The log loss is: ', np.mean(metric)
-    if np.mean(metric) < best_metric:
-        best_metric = np.mean(metric)
-        best_params = params
-    print 'The best metric is: ', best_metric, 'for the params: ', best_params
-
-# {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 10000}
-# 93  chi2 columns
-# start CV
-# The log loss is:  1.03566846139
-# The best metric is:  1.03566846139 for the params:  {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 10000}
-# {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 5000}
-# 155  chi2 columns
-# start CV
-# The log loss is:  1.0107879068
-# The best metric is:  1.0107879068 for the params:  {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 5000}
+print 'writing to file'
+submission_file = pd.DataFrame.from_csv("sample_submission.csv")
+submission_file[list(submission_file.columns.values)] = predicted_results
+submission_file.to_csv("chi2_feature_select_2.csv")
