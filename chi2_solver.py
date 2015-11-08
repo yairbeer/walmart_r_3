@@ -1,8 +1,6 @@
-from sklearn.grid_search import ParameterGrid
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import log_loss
 from sklearn.feature_selection import chi2
 from sklearn.ensemble import GradientBoostingClassifier
@@ -51,7 +49,7 @@ train = stding.fit_transform(train)
 
 print 'start fitting'
 
-classifier = GradientBoostingClassifier(n_estimators=200, max_depth=5, max_features=0.6, learning_rate=0.075)
+classifier = GradientBoostingClassifier(n_estimators=200, max_depth=5, max_features=0.6, learning_rate=0.05)
 
 classifier.fit(train, train_result)
 

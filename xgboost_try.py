@@ -37,8 +37,8 @@ del train_arr
 
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [40], 'max_depth': [5], 'max_features': [0.6],
-              'learning_rate': [0.025, 0.05, 0.1, 0.2, 0.4], 'chi2_lim': [1000, 2000]}
+param_grid = {'n_estimators': [100], 'max_depth': [3], 'max_features': [0.6],
+              'learning_rate': [0.05], 'chi2_lim': [1000], 'objective': ['multi:softprob']}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -57,9 +57,8 @@ for params in ParameterGrid(param_grid):
     # Standardizing
     stding = StandardScaler()
     train_arr = stding.fit_transform(train_arr)
-    classifier = GradientBoostingClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
-                                            max_features=params['max_features'], learning_rate=params['learning_rate'])
-
+    xgclassifier = xgboost.XGBClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
+                                         learning_rate=params['learning_rate'], objective=params['objective'])
     print 'start CV'
 
     # CV
@@ -71,10 +70,13 @@ for params in ParameterGrid(param_grid):
         X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
         y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
         # train machine learning
-        classifier.fit(X_train, y_train)
+        xgclassifier.fit(X_train, y_train)
 
         # predict
-        class_pred = classifier.predict_proba(X_test)
+        class_pred = xgclassifier.predict(X_test)
+        print class_pred.shape
+        class_pred = class_pred.reshape(y_test.shape[0], 38)
+        print class_pred
 
         # evaluate
         # print log_loss(y_test, class_pred)
