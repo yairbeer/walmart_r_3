@@ -51,7 +51,7 @@ train = stding.fit_transform(train)
 
 print 'start fitting'
 
-classifier = GradientBoostingClassifier(n_estimators=200, max_depth=5, max_features=0.6, learning_rate=0.2)
+classifier = GradientBoostingClassifier(n_estimators=200, max_depth=5, max_features=0.6, learning_rate=0.075)
 
 classifier.fit(train, train_result)
 
@@ -66,7 +66,7 @@ predicted_results = classifier.predict_proba(test)
 print 'writing to file'
 submission_file = pd.DataFrame.from_csv("sample_submission.csv")
 submission_file[list(submission_file.columns.values)] = predicted_results
-submission_file.to_csv("chi2_feature_select_pre2.csv")
+submission_file.to_csv("chi2_feature_select_2.csv")
 # predict
 class_pred = classifier.predict_proba(test)
 
