@@ -3,9 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import StratifiedKFold
-from sklearn.metrics import log_loss
 from sklearn.feature_selection import chi2
-from sklearn.ensemble import GradientBoostingClassifier
 import xgboostlib.xgboost as xgboost
 
 __author__ = 'YBeer'
@@ -46,7 +44,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [10], 'chi2_lim': [1000], 'num_round': [60]}
+              'objective': ['multi:softprob'], 'max_depth': [10], 'chi2_lim': [1000], 'num_round': [10]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -59,24 +57,18 @@ for params in ParameterGrid(param_grid):
             chi2_cols.append(col_list[i])
 
     print len(chi2_cols), ' chi2 columns'
-    train_arr = train.copy(deep=True)
-    train_arr = train_arr[chi2_cols]
+    train = train[chi2_cols]
+    train = np.array(train)
     test = test[chi2_cols]
     test = np.array(test)
 
     # Standardizing
     stding = StandardScaler()
-    train_arr = stding.fit_transform(train_arr)
+    train = stding.fit_transform(train)
     test = stding.transform(test)
 
-    print 'start CV'
-
-    # CV
-    cv_n = 2
-    kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
-
     # train machine learning
-    xg_train = xgboost.DMatrix(train_arr, label=train_result_xgb)
+    xg_train = xgboost.DMatrix(train, label=train_result_xgb)
     xg_test = xgboost.DMatrix(test)
 
     watchlist = [(xg_train, 'train')]
@@ -90,5 +82,22 @@ predicted_results = predicted_results.reshape(test.shape[0], 38)
 
 print 'writing to file'
 submission_file = pd.DataFrame.from_csv("sample_submission.csv")
-submission_file[list(submission_file.columns.values)] = predicted_results
-submission_file.to_csv("chi2_feature_select_2.csv")
+submission_cols = list(submission_file.columns.values)
+submission_vals = map(lambda x: int(x.split("_")[1]), submission_cols)
+
+print predicted_results
+
+print result_ind
+print submission_vals
+submission_table = np.zeros((predicted_results.shape))
+for i in range(predicted_results.shape[1]):
+    for j in range(predicted_results.shape[1]):
+        if submission_vals[i] == result_ind[j]:
+            print 'adding triptype ', submission_vals[i]
+            submission_table[:, i] = predicted_results[:, j]
+    print submission_table
+
+print submission_table
+
+submission_file[list(submission_file.columns.values)] = submission_table
+submission_file.to_csv("chi2_feature_select_xgboost.csv")
