@@ -11,10 +11,14 @@ import xgboostlib.xgboost as xgboost
 __author__ = 'YBeer'
 
 train_result = pd.DataFrame.from_csv("train_result.csv")
-# col = list(train_result.columns.values)
-# print len(list(train_result[col[0]].value_counts()))
+col = list(train_result.columns.values)
+result_ind = list(train_result[col[0]].value_counts().index)
 # train_result = pd.get_dummies(train_result)
 train_result = np.array(train_result).ravel()
+train_result_xgb = np.zeros(train_result.shape)
+for i in range(1, len(result_ind)):
+    train_result_xgb += (train_result == result_ind[i]) * i
+print train_result_xgb
 
 train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
 train.fillna(0)
@@ -38,8 +42,8 @@ del train_arr
 
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [100], 'max_depth': [3], 'max_features': [0.6],
-              'learning_rate': [0.05], 'chi2_lim': [1000], 'objective': ['multi:softprob']}
+param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
+              'objective': ['multi:softprob'], 'max_depth': [10, 20, 30, 40, 50, 60]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -65,22 +69,11 @@ for params in ParameterGrid(param_grid):
     cv_n = 2
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
-    # setup parameters for xgboost
-    param = {}
-    # use softmax multi-class classification
-    param['objective'] = 'multi:softprob'
-    # scale weight of positive examples
-    param['eta'] = 0.1
-    param['max_depth'] = 6
-    param['silent'] = 1
-    param['nthread'] = 4
-    param['num_class'] = 38
-
     metric = []
     for train_index, test_index in kf:
 
         X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
-        y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
+        y_train, y_test = train_result_xgb[train_index].ravel(), train_result_xgb[test_index].ravel()
         # train machine learning
         xg_train = xgboost.DMatrix(X_train, label=y_train)
         xg_test = xgboost.DMatrix(X_test, label=y_test)
@@ -88,10 +81,10 @@ for params in ParameterGrid(param_grid):
         watchlist = [(xg_train, 'train'), (xg_test, 'test')]
 
         num_round = 5
-        xgclassifier = xgboost.train(param, xg_train, num_round, watchlist);
+        xgclassifier = xgboost.train(params, xg_train, num_round, watchlist);
 
         # predict
-        class_pred = xgclassifier.predict(X_test)
+        class_pred = xgclassifier.predict(xg_test)
         print class_pred
         print class_pred.shape, X_test.shape
         class_pred = class_pred.reshape(y_test.shape[0], 38)
