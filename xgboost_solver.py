@@ -44,7 +44,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [10], 'chi2_lim': [1000], 'num_round': [10]}
+              'objective': ['multi:softprob'], 'max_depth': [10], 'chi2_lim': [1000], 'num_round': [100]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -85,19 +85,20 @@ submission_file = pd.DataFrame.from_csv("sample_submission.csv")
 submission_cols = list(submission_file.columns.values)
 submission_vals = map(lambda x: int(x.split("_")[1]), submission_cols)
 
-print predicted_results
+# print predicted_results
+#
+# print result_ind
+# print submission_vals
 
-print result_ind
-print submission_vals
 submission_table = np.zeros((predicted_results.shape))
 for i in range(predicted_results.shape[1]):
     for j in range(predicted_results.shape[1]):
         if submission_vals[i] == result_ind[j]:
             print 'adding triptype ', submission_vals[i]
             submission_table[:, i] = predicted_results[:, j]
-    print submission_table
+    # print submission_table
 
-print submission_table
+# print submission_table
 
 submission_file[list(submission_file.columns.values)] = submission_table
 submission_file.to_csv("chi2_feature_select_xgboost.csv")
