@@ -8,17 +8,18 @@ from sklearn.feature_selection import chi2
 from sklearn.ensemble import GradientBoostingClassifier
 import xgboostlib.xgboost as xgboost
 
-
 __author__ = 'YBeer'
+
+train_result = pd.DataFrame.from_csv("train_result.csv")
+# col = list(train_result.columns.values)
+# print len(list(train_result[col[0]].value_counts()))
+# train_result = pd.get_dummies(train_result)
+train_result = np.array(train_result).ravel()
 
 train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
-
-train_result = pd.DataFrame.from_csv("train_result.csv")
-# train_result = pd.get_dummies(train_result)
-train_result = np.array(train_result).ravel()
 
 # print train_result.shape[1], ' categorial'
 print train.shape[1], ' columns'
@@ -57,8 +58,7 @@ for params in ParameterGrid(param_grid):
     # Standardizing
     stding = StandardScaler()
     train_arr = stding.fit_transform(train_arr)
-    xgclassifier = xgboost.XGBClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'],
-                                         learning_rate=params['learning_rate'], objective=params['objective'])
+
     print 'start CV'
 
     # CV
@@ -70,11 +70,12 @@ for params in ParameterGrid(param_grid):
         X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
         y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
         # train machine learning
-        xgclassifier.fit(X_train, y_train)
+        xgclassifier = xgboost.train(params, X_train, y_train)
 
         # predict
         class_pred = xgclassifier.predict(X_test)
-        print class_pred.shape
+        print class_pred
+        print class_pred.shape, X_test.shape
         class_pred = class_pred.reshape(y_test.shape[0], 38)
         print class_pred
 
