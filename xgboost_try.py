@@ -65,12 +65,30 @@ for params in ParameterGrid(param_grid):
     cv_n = 2
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
 
+    # setup parameters for xgboost
+    param = {}
+    # use softmax multi-class classification
+    param['objective'] = 'multi:softprob'
+    # scale weight of positive examples
+    param['eta'] = 0.1
+    param['max_depth'] = 6
+    param['silent'] = 1
+    param['nthread'] = 4
+    param['num_class'] = 38
+
     metric = []
     for train_index, test_index in kf:
+
         X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
         y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
         # train machine learning
-        xgclassifier = xgboost.train(params, X_train, y_train)
+        xg_train = xgboost.DMatrix(X_train, label=y_train)
+        xg_test = xgboost.DMatrix(X_test, label=y_test)
+
+        watchlist = [(xg_train, 'train'), (xg_test, 'test')]
+
+        num_round = 5
+        xgclassifier = xgboost.train(param, xg_train, num_round, watchlist);
 
         # predict
         class_pred = xgclassifier.predict(X_test)
