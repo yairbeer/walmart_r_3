@@ -2,7 +2,7 @@ from sklearn.grid_search import ParameterGrid
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.cross_validation import train_test_split
 from sklearn.metrics import log_loss
 from sklearn.feature_selection import chi2
 from sklearn.ensemble import GradientBoostingClassifier
@@ -67,33 +67,29 @@ for params in ParameterGrid(param_grid):
 
     # CV
     cv_n = 2
-    kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
-
+    X_train, X_test, y_train, y_test = train_test_split(train_arr, train_result_xgb, test_size=0.33, random_state=42)
     metric = []
-    for train_index, test_index in kf:
 
-        X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
-        y_train, y_test = train_result_xgb[train_index].ravel(), train_result_xgb[test_index].ravel()
-        # train machine learning
-        xg_train = xgboost.DMatrix(X_train, label=y_train)
-        xg_test = xgboost.DMatrix(X_test, label=y_test)
+    # train machine learning
+    xg_train = xgboost.DMatrix(X_train, label=y_train)
+    xg_test = xgboost.DMatrix(X_test, label=y_test)
 
-        watchlist = [(xg_train, 'train'), (xg_test, 'test')]
+    watchlist = [(xg_train, 'train'), (xg_test, 'test')]
 
-        num_round = params['num_round']
-        xgclassifier = xgboost.train(params, xg_train, num_round, watchlist);
+    num_round = params['num_round']
+    xgclassifier = xgboost.train(params, xg_train, num_round, watchlist);
 
-        # predict
-        class_pred = xgclassifier.predict(xg_test)
-        class_pred = class_pred.reshape(y_test.shape[0], 38)
+    # predict
+    class_pred = xgclassifier.predict(xg_test)
+    class_pred = class_pred.reshape(y_test.shape[0], 38)
 
-        # evaluate
-        # print log_loss(y_test, class_pred)
-        metric.append(log_loss(y_test, class_pred))
+    # evaluate
+    # print log_loss(y_test, class_pred)
+    metric = log_loss(y_test, class_pred)
 
-    print 'The log loss is: ', np.mean(metric)
-    if np.mean(metric) < best_metric:
-        best_metric = np.mean(metric)
+    print 'The log loss is: ', metric
+    if metric < best_metric:
+        best_metric = metric
         best_params = params
     print 'The best metric is: ', best_metric, 'for the params: ', best_params
 
