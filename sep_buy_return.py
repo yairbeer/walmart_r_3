@@ -6,8 +6,8 @@ __author__ = 'WiBeer'
 
 def add_prefix(dataset, prefix):
     col_names = np.array(dataset.columns.values).astype('str')
-    for i in range(col_names.shape[0]):
-        col_names[i] = prefix + col_names[i]
+    for i_in in range(col_names.shape[0]):
+        col_names[i_in] = prefix + col_names[i_in]
     dataset.columns = col_names
     return dataset
 
@@ -15,9 +15,9 @@ def add_prefix(dataset, prefix):
 def remove_sparse(dataset):
     col_names = np.array(dataset.columns.values).astype('str')
     dead_col = []
-    for i in range(col_names.shape[0]):
-        if not np.sum(dataset[col_names[i]]):
-            dead_col.append(i)
+    for i_in in range(col_names.shape[0]):
+        if not np.sum(dataset[col_names[i_in]]):
+            dead_col.append(i_in)
     dataset = dataset.drop(dataset.columns[dead_col], 1)
     return dataset
 
@@ -85,7 +85,7 @@ train_returned_items.index = trainset.index
 train_returned_items.columns = ['Returned']
 train_data_returned_items = train_returned_items.groupby(by=trainset.index, sort=False).sum()
 
-sparsity = 200
+sparsity = 500
 
 # find most bought FinelineNumber
 print 'remove sparse train FinelineNumber'
@@ -118,16 +118,55 @@ train_data_count_fln_bought.index = tmp_index
 train_data_count_fln_bought = train_data_count_fln_bought.groupby(by=train_data_count_fln_bought.index, sort=False).sum()
 train_data_count_fln_bought = add_prefix(train_data_count_fln_bought, 'FLN_B_')
 
-# returned
-train_data_count_fln = pd.get_dummies(trainset['FinelineNumber'])
-tmp_index = train_data_count_fln.index
-tmp_columns = list(train_data_count_fln.columns.values)
-tmp_table = np.array(train_data_count_fln) * np.array(train_returned_items)
-train_data_count_fln_returned = pd.DataFrame(tmp_table)
-train_data_count_fln_returned.columns = tmp_columns
-train_data_count_fln_returned.index = tmp_index
-train_data_count_fln_returned = train_data_count_fln_returned.groupby(by=train_data_count_fln_returned.index, sort=False).sum()
-train_data_count_fln_returned = add_prefix(train_data_count_fln_returned, 'FLN_R_')
+# # returned
+# train_data_count_fln = pd.get_dummies(trainset['FinelineNumber'])
+# tmp_index = train_data_count_fln.index
+# tmp_columns = list(train_data_count_fln.columns.values)
+# tmp_table = np.array(train_data_count_fln) * np.array(train_returned_items)
+# train_data_count_fln_returned = pd.DataFrame(tmp_table)
+# train_data_count_fln_returned.columns = tmp_columns
+# train_data_count_fln_returned.index = tmp_index
+# train_data_count_fln_returned = train_data_count_fln_returned.groupby(by=train_data_count_fln_returned.index, sort=False).sum()
+# train_data_count_fln_returned = add_prefix(train_data_count_fln_returned, 'FLN_R_')
+
+# bought Upc engineered
+parsed_series = np.array(trainset['Upc']).astype('str')
+parsed_series = vec_parse_rule(parsed_series)
+parsed_series = pd.DataFrame(parsed_series)
+parsed_series.columns = ['upc_subcat']
+parsed_series.index = trainset.index
+print parsed_series
+
+# print parsed_series
+parsed_density = parsed_series['upc_subcat'].value_counts()
+print parsed_density
+
+n_features = np.sum(parsed_density > sparsity)
+print n_features
+
+upc_density = parsed_density.iloc[:n_features]
+upc_density = list(upc_density.index)
+
+# remove sparse Upc
+tmp_series = np.zeros((trainset.shape[0], 1))
+for i in range(trainset.shape[0]):
+    upc_number = parsed_series.iloc[i]['upc_subcat']
+    if upc_number in upc_density:
+        tmp_series[i] = upc_number
+parsed_series['upc_subcat'] = tmp_series
+print parsed_series['upc_subcat'].value_counts()
+
+# dummy sub Upc
+print 'dummy train sub Upc'
+train_data_count_upc_sub = pd.get_dummies(parsed_series['upc_subcat'])
+tmp_index = train_data_count_upc_sub.index
+tmp_columns = list(train_data_count_upc_sub.columns.values)
+tmp_table = np.array(train_data_count_upc_sub) * train_total_items
+train_data_count_upc_sub = pd.DataFrame(tmp_table)
+train_data_count_upc_sub.columns = tmp_columns
+train_data_count_upc_sub.index = tmp_index
+train_data_count_upc_sub = train_data_count_upc_sub.groupby(by=train_data_count_upc_sub.index, sort=False).sum()
+train_data_count_upc_sub = add_prefix(train_data_count_upc_sub, 'upc_subcat')
 
 # find most bought Upc
 print 'remove sparse train Upc'
@@ -261,47 +300,11 @@ for i in range(len(indexes)):
         else:
             train_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
-# bought Upc engineered
-parsed_series = np.array(trainset['Upc']).astype('str')
-parsed_series = vec_parse_rule(parsed_series)
-parsed_series = pd.DataFrame(parsed_series)
-parsed_series.columns = ['upc_subcat']
-parsed_series.index = trainset.index
-
-# print parsed_series
-
-parsed_density = parsed_series['upc_subcat'].value_counts()
-print parsed_series
-
-n_features = np.sum(parsed_density > 0)
-print n_features
-
-upc_density = parsed_density.iloc[:750]
-upc_density = list(upc_density.index)
-
-# remove sparse Upc
-tmp_series = np.zeros((trainset.shape[0], 1))
-for i in range(trainset.shape[0]):
-    upc_number = parsed_series.iloc[i]['upc_subcat']
-    if upc_number in upc_density:
-        tmp_series[i] = upc_number
-parsed_series['upc_subcat'] = tmp_series
-print parsed_series['upc_subcat'].value_counts()
-
-# dummy Upc
-print 'dummy train Upc'
-train_data_count_upc_sub = pd.get_dummies(parsed_series['upc_subcat'])
-tmp_index = train_data_count_upc_sub.index
-tmp_columns = list(train_data_count_upc_sub.columns.values)
-tmp_table = np.array(train_data_count_upc_sub) * train_total_items
-train_data_count_upc_sub = pd.DataFrame(tmp_table)
-train_data_count_upc_sub.columns = tmp_columns
-train_data_count_upc_sub.index = tmp_index
-train_data_count_upc_sub = train_data_count_upc_sub.groupby(by=train_data_count_upc_sub.index, sort=False).sum()
-train_data_count_upc_sub = add_prefix(train_data_count_upc_sub, 'upc_subcat')
-
-train = pd.concat([train_data_not_count, train_data_count_dep_bought, train_data_count_dep_returned,
-                   train_data_count_fln_bought, train_data_count_fln_returned, train_data_count_upc_sub,
+train = pd.concat([train_data_not_count, train_data_count_dep_bought,
+                   train_data_count_dep_returned,
+                   train_data_count_fln_bought,
+                   # train_data_count_fln_returned,
+                   train_data_count_upc_sub,
                    train_data_count_upc, train_dep_count_b, train_dep_count_r, train_fln_count_b, train_fln_count_r,
                    train_upc_count_b, train_upc_count_r, train_data_bought_items, train_data_returned_items], axis=1)
 # train = remove_sparse(train)
@@ -379,16 +382,55 @@ test_data_count_fln_bought.index = tmp_index
 test_data_count_fln_bought = test_data_count_fln_bought.groupby(by=test_data_count_fln_bought.index, sort=False).sum()
 test_data_count_fln_bought = add_prefix(test_data_count_fln_bought, 'FLN_B_')
 
-# returned
-test_data_count_fln = pd.get_dummies(testset['FinelineNumber'])
-tmp_index = test_data_count_fln.index
-tmp_columns = list(test_data_count_fln.columns.values)
-tmp_table = np.array(test_data_count_fln) * np.array(test_total_items)
-test_data_count_fln_returned = pd.DataFrame(tmp_table)
-test_data_count_fln_returned.columns = tmp_columns
-test_data_count_fln_returned.index = tmp_index
-test_data_count_fln_returned = test_data_count_fln_returned.groupby(by=test_data_count_fln_returned.index, sort=False).sum()
-test_data_count_fln_returned = add_prefix(test_data_count_fln_returned, 'FLN_R_')
+# # returned
+# test_data_count_fln = pd.get_dummies(testset['FinelineNumber'])
+# tmp_index = test_data_count_fln.index
+# tmp_columns = list(test_data_count_fln.columns.values)
+# tmp_table = np.array(test_data_count_fln) * np.array(test_total_items)
+# test_data_count_fln_returned = pd.DataFrame(tmp_table)
+# test_data_count_fln_returned.columns = tmp_columns
+# test_data_count_fln_returned.index = tmp_index
+# test_data_count_fln_returned = test_data_count_fln_returned.groupby(by=test_data_count_fln_returned.index, sort=False).sum()
+# test_data_count_fln_returned = add_prefix(test_data_count_fln_returned, 'FLN_R_')
+
+# bought Upc engineered
+parsed_series = np.array(testset['Upc']).astype('str')
+parsed_series = vec_parse_rule(parsed_series)
+parsed_series = pd.DataFrame(parsed_series)
+parsed_series.columns = ['upc_subcat']
+parsed_series.index = testset.index
+
+# print parsed_series
+
+parsed_density = parsed_series['upc_subcat'].value_counts()
+print parsed_series
+
+n_features = np.sum(parsed_density > sparsity)
+print n_features
+
+upc_density = parsed_density.iloc[:n_features]
+upc_density = list(upc_density.index)
+
+# remove sparse Upc
+tmp_series = np.zeros((testset.shape[0], 1))
+for i in range(testset.shape[0]):
+    upc_number = parsed_series.iloc[i]['upc_subcat']
+    if upc_number in upc_density:
+        tmp_series[i] = upc_number
+parsed_series['upc_subcat'] = tmp_series
+print parsed_series['upc_subcat'].value_counts()
+
+# dummy Upc
+print 'dummy test sub Upc'
+test_data_count_upc_sub = pd.get_dummies(parsed_series['upc_subcat'])
+tmp_index = test_data_count_upc_sub.index
+tmp_columns = list(test_data_count_upc_sub.columns.values)
+tmp_table = np.array(test_data_count_upc_sub) * test_total_items
+test_data_count_upc_sub = pd.DataFrame(tmp_table)
+test_data_count_upc_sub.columns = tmp_columns
+test_data_count_upc_sub.index = tmp_index
+test_data_count_upc_sub = test_data_count_upc_sub.groupby(by=test_data_count_upc_sub.index, sort=False).sum()
+test_data_count_upc_sub = add_prefix(test_data_count_upc_sub, 'upc_subcat')
 
 # find most bought Upc
 print 'remove sparse test Upc'
@@ -522,47 +564,10 @@ for i in range(len(indexes)):
         else:
             test_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
-# bought Upc engineered
-parsed_series = np.array(testset['Upc']).astype('str')
-parsed_series = vec_parse_rule(parsed_series)
-parsed_series = pd.DataFrame(parsed_series)
-parsed_series.columns = ['upc_subcat']
-parsed_series.index = testset.index
-
-# print parsed_series
-
-parsed_density = parsed_series['upc_subcat'].value_counts()
-print parsed_series
-
-n_features = np.sum(parsed_density > 0)
-print n_features
-
-upc_density = parsed_density.iloc[:750]
-upc_density = list(upc_density.index)
-
-# remove sparse Upc
-tmp_series = np.zeros((testset.shape[0], 1))
-for i in range(testset.shape[0]):
-    upc_number = parsed_series.iloc[i]['upc_subcat']
-    if upc_number in upc_density:
-        tmp_series[i] = upc_number
-parsed_series['upc_subcat'] = tmp_series
-print parsed_series['upc_subcat'].value_counts()
-
-# dummy Upc
-print 'dummy test sub Upc'
-test_data_count_upc_sub = pd.get_dummies(parsed_series['upc_subcat'])
-tmp_index = test_data_count_upc_sub.index
-tmp_columns = list(test_data_count_upc_sub.columns.values)
-tmp_table = np.array(test_data_count_upc_sub) * test_total_items
-test_data_count_upc_sub = pd.DataFrame(tmp_table)
-test_data_count_upc_sub.columns = tmp_columns
-test_data_count_upc_sub.index = tmp_index
-test_data_count_upc_sub = test_data_count_upc_sub.groupby(by=test_data_count_upc_sub.index, sort=False).sum()
-test_data_count_upc_sub = add_prefix(test_data_count_upc_sub, 'upc_subcat')
-
 test = pd.concat([test_data_not_count, test_data_count_dep_bought, test_data_count_dep_returned,
-                  test_data_count_fln_bought, test_data_count_fln_returned, test_data_count_upc_sub,
+                  test_data_count_fln_bought,
+                  # test_data_count_fln_returned,
+                  test_data_count_upc_sub,
                   test_data_count_upc, test_dep_count_b, test_dep_count_r, test_fln_count_b, test_fln_count_r,
                   test_upc_count_b, test_upc_count_r, test_data_bought_items, test_data_returned_items], axis=1)
 # test = remove_sparse(test)
@@ -582,5 +587,5 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_200_sep_dep_fln_b_r_v3.csv")
-test.to_csv("test_dummied_200_sep_dep_fln_b_r_v3.csv")
+train.to_csv("train_dummied_500_sep_dep_fln_b_r_v3.csv")
+test.to_csv("test_dummied_500_sep_dep_fln_b_r_v3.csv")
