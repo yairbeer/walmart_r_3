@@ -69,12 +69,12 @@ vec_parse_rule = np.vectorize(parse_rule)
 
 parsed_series = vec_parse_rule(parsed_series)
 parsed_series = pd.DataFrame(parsed_series)
-parsed_series.columns = ['parsing']
+parsed_series.columns = ['upc_subcat']
 parsed_series.index = trainset.index
 
 # print parsed_series
 
-parsed_density = parsed_series['parsing'].value_counts()
+parsed_density = parsed_series['upc_subcat'].value_counts()
 print parsed_series
 
 n_features = np.sum(parsed_density > 0)
@@ -86,15 +86,15 @@ upc_density = list(upc_density.index)
 # remove sparse Upc
 tmp_series = np.zeros((trainset.shape[0], 1))
 for i in range(trainset.shape[0]):
-    upc_number = parsed_series.iloc[i]['parsing']
+    upc_number = parsed_series.iloc[i]['upc_subcat']
     if upc_number in upc_density:
         tmp_series[i] = upc_number
-parsed_series['parsing'] = tmp_series
-print parsed_series['parsing'].value_counts()
+parsed_series['upc_subcat'] = tmp_series
+print parsed_series['upc_subcat'].value_counts()
 
 # dummy Upc
 print 'dummy train Upc'
-train_data_count_upc = pd.get_dummies(parsed_series['parsing'])
+train_data_count_upc = pd.get_dummies(parsed_series['upc_subcat'])
 tmp_index = train_data_count_upc.index
 tmp_columns = list(train_data_count_upc.columns.values)
 tmp_table = np.array(train_data_count_upc) * train_total_items

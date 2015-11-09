@@ -21,6 +21,11 @@ def remove_sparse(dataset):
     dataset = dataset.drop(dataset.columns[dead_col], 1)
     return dataset
 
+
+def parse_rule(string):
+    return string[:3]
+vec_parse_rule = np.vectorize(parse_rule)
+
 """
 preprocessing data
 """
@@ -256,8 +261,47 @@ for i in range(len(indexes)):
         else:
             train_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
+# bought Upc engineered
+parsed_series = np.array(trainset['Upc']).astype('str')
+parsed_series = vec_parse_rule(parsed_series)
+parsed_series = pd.DataFrame(parsed_series)
+parsed_series.columns = ['upc_subcat']
+parsed_series.index = trainset.index
+
+# print parsed_series
+
+parsed_density = parsed_series['upc_subcat'].value_counts()
+print parsed_series
+
+n_features = np.sum(parsed_density > 0)
+print n_features
+
+upc_density = parsed_density.iloc[:750]
+upc_density = list(upc_density.index)
+
+# remove sparse Upc
+tmp_series = np.zeros((trainset.shape[0], 1))
+for i in range(trainset.shape[0]):
+    upc_number = parsed_series.iloc[i]['upc_subcat']
+    if upc_number in upc_density:
+        tmp_series[i] = upc_number
+parsed_series['upc_subcat'] = tmp_series
+print parsed_series['upc_subcat'].value_counts()
+
+# dummy Upc
+print 'dummy train Upc'
+train_data_count_upc_sub = pd.get_dummies(parsed_series['upc_subcat'])
+tmp_index = train_data_count_upc_sub.index
+tmp_columns = list(train_data_count_upc_sub.columns.values)
+tmp_table = np.array(train_data_count_upc_sub) * train_total_items
+train_data_count_upc_sub = pd.DataFrame(tmp_table)
+train_data_count_upc_sub.columns = tmp_columns
+train_data_count_upc_sub.index = tmp_index
+train_data_count_upc_sub = train_data_count_upc_sub.groupby(by=train_data_count_upc_sub.index, sort=False).sum()
+train_data_count_upc_sub = add_prefix(train_data_count_upc_sub, 'upc_subcat')
+
 train = pd.concat([train_data_not_count, train_data_count_dep_bought, train_data_count_dep_returned,
-                   train_data_count_fln_bought, train_data_count_fln_returned,
+                   train_data_count_fln_bought, train_data_count_fln_returned, train_data_count_upc_sub,
                    train_data_count_upc, train_dep_count_b, train_dep_count_r, train_fln_count_b, train_fln_count_r,
                    train_upc_count_b, train_upc_count_r, train_data_bought_items, train_data_returned_items], axis=1)
 # train = remove_sparse(train)
@@ -478,9 +522,48 @@ for i in range(len(indexes)):
         else:
             test_upc_count_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
+# bought Upc engineered
+parsed_series = np.array(testset['Upc']).astype('str')
+parsed_series = vec_parse_rule(parsed_series)
+parsed_series = pd.DataFrame(parsed_series)
+parsed_series.columns = ['upc_subcat']
+parsed_series.index = testset.index
+
+# print parsed_series
+
+parsed_density = parsed_series['upc_subcat'].value_counts()
+print parsed_series
+
+n_features = np.sum(parsed_density > 0)
+print n_features
+
+upc_density = parsed_density.iloc[:750]
+upc_density = list(upc_density.index)
+
+# remove sparse Upc
+tmp_series = np.zeros((testset.shape[0], 1))
+for i in range(testset.shape[0]):
+    upc_number = parsed_series.iloc[i]['upc_subcat']
+    if upc_number in upc_density:
+        tmp_series[i] = upc_number
+parsed_series['upc_subcat'] = tmp_series
+print parsed_series['upc_subcat'].value_counts()
+
+# dummy Upc
+print 'dummy test sub Upc'
+test_data_count_upc_sub = pd.get_dummies(parsed_series['upc_subcat'])
+tmp_index = test_data_count_upc_sub.index
+tmp_columns = list(test_data_count_upc_sub.columns.values)
+tmp_table = np.array(test_data_count_upc_sub) * test_total_items
+test_data_count_upc_sub = pd.DataFrame(tmp_table)
+test_data_count_upc_sub.columns = tmp_columns
+test_data_count_upc_sub.index = tmp_index
+test_data_count_upc_sub = test_data_count_upc_sub.groupby(by=test_data_count_upc_sub.index, sort=False).sum()
+test_data_count_upc_sub = add_prefix(test_data_count_upc_sub, 'upc_subcat')
+
 test = pd.concat([test_data_not_count, test_data_count_dep_bought, test_data_count_dep_returned,
-                  test_data_count_fln_bought, test_data_count_fln_returned, test_data_count_upc,
-                  test_dep_count_b, test_dep_count_r, test_fln_count_b, test_fln_count_r,
+                  test_data_count_fln_bought, test_data_count_fln_returned, test_data_count_upc_sub,
+                  test_data_count_upc, test_dep_count_b, test_dep_count_r, test_fln_count_b, test_fln_count_r,
                   test_upc_count_b, test_upc_count_r, test_data_bought_items, test_data_returned_items], axis=1)
 # test = remove_sparse(test)
 
@@ -499,5 +582,5 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
-test.to_csv("test_dummied_200_sep_dep_fln_b_r_v2.csv")
+train.to_csv("train_dummied_200_sep_dep_fln_b_r_v3.csv")
+test.to_csv("test_dummied_200_sep_dep_fln_b_r_v3.csv")
