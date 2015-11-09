@@ -85,7 +85,7 @@ for params in ParameterGrid(param_grid):
     submission_cols = list(submission_file.columns.values)
     submission_vals = map(lambda x: int(x.split("_")[1]), submission_cols)
 
-    submission_table = np.zeros((predicted_results.shape))
+    submission_table = np.zeros(predicted_results.shape)
     for i in range(predicted_results.shape[1]):
         for j in range(predicted_results.shape[1]):
             if submission_vals[i] == result_ind[j]:

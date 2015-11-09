@@ -94,3 +94,4 @@ for params in ParameterGrid(param_grid):
 
 # The best metric is: 0.788417796191 for the params:  {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 100, 'max_depth': 7, 'chi2_lim': 250}
 # The best metric is:  0.761735967063 for the params:  {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 200, 'max_depth': 7, 'chi2_lim': 0}
+# train-mlogloss:0.339249
