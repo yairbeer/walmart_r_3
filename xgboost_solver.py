@@ -18,12 +18,12 @@ for i in range(1, len(result_ind)):
     train_result_xgb += (train_result == result_ind[i]) * i
 # print train_result_xgb
 
-train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v2.csv")
+train = pd.DataFrame.from_csv("train_dummied_300_sep_dep_fln_b_r_v3.csv")
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
 
-test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v2.csv")
+test = pd.DataFrame.from_csv("test_dummied_300_sep_dep_fln_b_r_v3.csv")
 test.fillna(0)
 
 # print train_result.shape[1], ' categorial'
@@ -44,7 +44,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [7], 'chi2_lim': [1000], 'num_round': [200]}
+              'objective': ['multi:softprob'], 'max_depth': [7], 'chi2_lim': [0], 'num_round': [200]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -76,22 +76,21 @@ for params in ParameterGrid(param_grid):
     num_round = params['num_round']
     xgclassifier = xgboost.train(params, xg_train, num_round, watchlist);
 
-# predict
-predicted_results = xgclassifier.predict(xg_test)
-predicted_results = predicted_results.reshape(test.shape[0], 38)
+    # predict
+    predicted_results = xgclassifier.predict(xg_test)
+    predicted_results = predicted_results.reshape(test.shape[0], 38)
 
-print 'writing to file'
-submission_file = pd.DataFrame.from_csv("sample_submission.csv")
-submission_cols = list(submission_file.columns.values)
-submission_vals = map(lambda x: int(x.split("_")[1]), submission_cols)
+    print 'writing to file'
+    submission_file = pd.DataFrame.from_csv("sample_submission.csv")
+    submission_cols = list(submission_file.columns.values)
+    submission_vals = map(lambda x: int(x.split("_")[1]), submission_cols)
 
+    submission_table = np.zeros((predicted_results.shape))
+    for i in range(predicted_results.shape[1]):
+        for j in range(predicted_results.shape[1]):
+            if submission_vals[i] == result_ind[j]:
+                print 'adding triptype ', submission_vals[i]
+                submission_table[:, i] = predicted_results[:, j]
 
-submission_table = np.zeros((predicted_results.shape))
-for i in range(predicted_results.shape[1]):
-    for j in range(predicted_results.shape[1]):
-        if submission_vals[i] == result_ind[j]:
-            print 'adding triptype ', submission_vals[i]
-            submission_table[:, i] = predicted_results[:, j]
-
-submission_file[list(submission_file.columns.values)] = submission_table
-submission_file.to_csv("chi2_feature_select_xgboost_7depth.csv")
+    submission_file[list(submission_file.columns.values)] = submission_table
+    submission_file.to_csv("chi2_feature_select_xgboost_7depth_1127var.csv")

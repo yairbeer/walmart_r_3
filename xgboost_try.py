@@ -42,7 +42,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [7], 'chi2_lim': [1000, 250, 500], 'num_round': [100]}
+              'objective': ['multi:softprob'], 'max_depth': [7], 'chi2_lim': [0], 'num_round': [200]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -90,15 +90,7 @@ for params in ParameterGrid(param_grid):
     if metric < best_metric:
         best_metric = metric
         best_params = params
-    print 'The best metric is: ', best_metric, 'for the params: ', best_params
+    print 'The best metric is:', best_metric, 'for the params:', best_params
 
-# {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 10000}
-# 93  chi2 columns
-# start CV
-# The log loss is:  1.03566846139
-# The best metric is:  1.03566846139 for the params:  {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 10000}
-# {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 5000}
-# 155  chi2 columns
-# start CV
-# The log loss is:  1.0107879068
-# The best metric is:  1.0107879068 for the params:  {'max_features': 0.8, 'n_estimators': 25, 'learning_rate': 0.1, 'max_depth': 5, 'chi2_lim': 5000}
+# The best metric is: 0.788417796191 for the params:  {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 100, 'max_depth': 7, 'chi2_lim': 250}
+# The best metric is:  0.761735967063 for the params:  {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 200, 'max_depth': 7, 'chi2_lim': 0}
