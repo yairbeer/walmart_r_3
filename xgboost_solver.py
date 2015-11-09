@@ -44,7 +44,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [10], 'chi2_lim': [1000], 'num_round': [100]}
+              'objective': ['multi:softprob'], 'max_depth': [7], 'chi2_lim': [1000], 'num_round': [200]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -101,4 +101,4 @@ for i in range(predicted_results.shape[1]):
 # print submission_table
 
 submission_file[list(submission_file.columns.values)] = submission_table
-submission_file.to_csv("chi2_feature_select_xgboost.csv")
+submission_file.to_csv("chi2_feature_select_xgboost_7depth.csv")
