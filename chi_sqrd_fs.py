@@ -37,8 +37,8 @@ del train_arr
 
 best_metric = 10
 best_params = []
-param_grid = {'n_estimators': [40], 'max_depth': [5], 'max_features': [0.6],
-              'learning_rate': [0.025, 0.05, 0.1, 0.2, 0.4], 'chi2_lim': [1000, 2000]}
+param_grid = {'n_estimators': [40], 'max_depth': [4, 5, 6, 7], 'max_features': [0.6],
+              'learning_rate': [0.075], 'chi2_lim': [1000]}
 
 for params in ParameterGrid(param_grid):
     print params

@@ -2,7 +2,6 @@ from sklearn.grid_search import ParameterGrid
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.cross_validation import StratifiedKFold
 from sklearn.feature_selection import chi2
 import xgboostlib.xgboost as xgboost
 

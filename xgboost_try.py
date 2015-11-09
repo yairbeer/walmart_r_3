@@ -42,7 +42,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [7], 'chi2_lim': [0], 'num_round': [200]}
+              'objective': ['multi:softprob'], 'max_depth': [3, 5, 7, 4, 6], 'chi2_lim': [0], 'num_round': [300]}
 
 for params in ParameterGrid(param_grid):
     print params
