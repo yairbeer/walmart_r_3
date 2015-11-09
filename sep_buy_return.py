@@ -85,7 +85,7 @@ train_returned_items.index = trainset.index
 train_returned_items.columns = ['Returned']
 train_data_returned_items = train_returned_items.groupby(by=trainset.index, sort=False).sum()
 
-sparsity = 500
+sparsity = 300
 
 # find most bought FinelineNumber
 print 'remove sparse train FinelineNumber'
@@ -135,11 +135,11 @@ parsed_series = vec_parse_rule(parsed_series)
 parsed_series = pd.DataFrame(parsed_series)
 parsed_series.columns = ['upc_subcat']
 parsed_series.index = trainset.index
-print parsed_series
+# print parsed_series
 
 # print parsed_series
 parsed_density = parsed_series['upc_subcat'].value_counts()
-print parsed_density
+# print parsed_density
 
 n_features = np.sum(parsed_density > sparsity)
 print n_features
@@ -154,7 +154,7 @@ for i in range(trainset.shape[0]):
     if upc_number in upc_density:
         tmp_series[i] = upc_number
 parsed_series['upc_subcat'] = tmp_series
-print parsed_series['upc_subcat'].value_counts()
+# print parsed_series['upc_subcat'].value_counts()
 
 # dummy sub Upc
 print 'dummy train sub Upc'
@@ -587,5 +587,5 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_500_sep_dep_fln_b_r_v3.csv")
-test.to_csv("test_dummied_500_sep_dep_fln_b_r_v3.csv")
+train.to_csv("train_dummied_300_sep_dep_fln_b_r_v3.csv")
+test.to_csv("test_dummied_300_sep_dep_fln_b_r_v3.csv")
