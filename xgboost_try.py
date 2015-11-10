@@ -95,3 +95,23 @@ for params in ParameterGrid(param_grid):
 # The best metric is: 0.788417796191 for the params:  {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 100, 'max_depth': 7, 'chi2_lim': 250}
 # The best metric is:  0.761735967063 for the params:  {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 200, 'max_depth': 7, 'chi2_lim': 0}
 # train-mlogloss:0.339249
+
+# {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'nthread': 4, 'objective': 'multi:softprob', 'eta': 0.1, 'num_round': 300, 'max_depth': 6, 'chi2_lim': 0}
+# 1381  chi2 columns
+# start CV
+# [0]	train-mlogloss:2.778163	test-mlogloss:2.804167
+# [1]	train-mlogloss:2.459369	test-mlogloss:2.498193
+# [2]	train-mlogloss:2.241110	test-mlogloss:2.289825
+# [3]	train-mlogloss:2.071988	test-mlogloss:2.128342
+# [4]	train-mlogloss:1.933007	test-mlogloss:1.996711
+# [5]	train-mlogloss:1.816016	test-mlogloss:1.886429
+# [6]	train-mlogloss:1.716173	test-mlogloss:1.792143
+# [7]	train-mlogloss:1.628776	test-mlogloss:1.710052
+# [8]	train-mlogloss:1.551727	test-mlogloss:1.638188
+# [9]	train-mlogloss:1.483332	test-mlogloss:1.574346
+# [10]	train-mlogloss:1.421724	test-mlogloss:1.517516
+# [11]	train-mlogloss:1.366590	test-mlogloss:1.466812
+# [12]	train-mlogloss:1.315932	test-mlogloss:1.420337
+# [13]	train-mlogloss:1.270089	test-mlogloss:1.378664
+# [14]	train-mlogloss:1.228127	test-mlogloss:1.340715
+# [15]	train-mlogloss:1.189455	test-mlogloss:1.305895
