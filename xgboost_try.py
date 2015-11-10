@@ -19,7 +19,7 @@ for i in range(1, len(result_ind)):
     train_result_xgb += (train_result == result_ind[i]) * i
 # print train_result_xgb
 
-train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v3.csv")
+train = pd.DataFrame.from_csv("train_dummied_250_sep_dep_fln_b_r_v4.csv")
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
@@ -42,7 +42,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [7, 5, 6], 'chi2_lim': [0], 'num_round': [300]}
+              'objective': ['multi:softprob'], 'max_depth': [6], 'chi2_lim': [0], 'num_round': [300]}
 
 for params in ParameterGrid(param_grid):
     print params
