@@ -80,7 +80,7 @@ def dummy_sep_sparse(df, col, sparsity, bought, returned):
     count_bought = add_prefix(count_bought, col + '_B_')
 
     # returned
-    data_count = pd.get_dummies(df['FinelineNumber'])
+    data_count = pd.get_dummies(df[col])
     tmp_index = data_count.index
     tmp_columns = list(data_count.columns.values)
     tmp_table = np.array(data_count) * np.array(returned)
@@ -313,6 +313,14 @@ print 'dummy train Upc'
 train_count_upc_bought, train_count_upc_returned = dummy_sep_sparse(trainset, 'Upc', sparsity,
                                                                               train_bought_items, train_returned_items)
 
+train_bought_items = pd.DataFrame(train_bought_items)
+train_bought_items.index = train_result.index
+train_bought_items.columns = ['Bought']
+
+train_returned_items = pd.DataFrame(train_returned_items)
+train_returned_items.index = train_result.index
+train_returned_items.columns = ['Returned']
+
 train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep_returned,
                    train_count_fln_bought, train_count_fln_returned,
                    train_count_upc_bought, train_count_upc_returned,
@@ -452,6 +460,14 @@ test_count_fln_bought, test_count_fln_returned = dummy_sep_sparse(testset, 'Fine
 print 'dummy test Upc'
 test_count_upc_bought, test_count_upc_returned = dummy_sep_sparse(testset, 'Upc', sparsity,
                                                                   test_bought_items, test_returned_items)
+
+test_bought_items = pd.DataFrame(test_bought_items)
+test_bought_items.index = train_result.index
+test_bought_items.columns = ['Bought']
+
+test_returned_items = pd.DataFrame(test_returned_items)
+test_returned_items.index = test_data_not_count.index
+test_returned_items.columns = ['Returned']
 
 test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_returned,
                   test_count_fln_bought, test_count_fln_returned,
