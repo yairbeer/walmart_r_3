@@ -97,6 +97,7 @@ def max_digit(df, col):
     max_len = 1
     for i in range(arr.shape[0]):
         if len(arr[i]) > max_len:
+            print arr[i], len(arr[i])
             max_len = len(arr[i])
     return max_len
 
@@ -124,7 +125,7 @@ upc_dig = max_digit(trainset, 'Upc')
 
 train_result = trainset['TripType']
 train_result = train_result.groupby(by=train_result.index, sort=False).mean()
-print train_result.value_counts()
+# print train_result.value_counts()
 # train_result.to_csv("train_result.csv")
 
 n_trips = train_result.shape[0]
