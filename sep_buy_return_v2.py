@@ -221,7 +221,8 @@ for i in range(len(indexes)):
             train_upc_num_r.loc[indexes[i]] = len(list(single_vis_returned['Upc'].value_counts()))
 
 print 'dummy train DepartmentDescription'
-train_count_dep_bought, train_count_dep_returned = dummy_sep(trainset, 'DepartmentDescription')
+train_count_dep_bought, train_count_dep_returned = dummy_sep(trainset, 'DepartmentDescription',
+                                                             train_bought_items, train_returned_items)
 
 sparsity = 1000
 
@@ -440,7 +441,8 @@ test_bought_items = np.clip(test_total_items, a_min=0, a_max=99999)
 test_returned_items = np.clip(test_total_items, a_min=-99999, a_max=0)
 
 print 'dummy test DepartmentDescription'
-test_count_dep_bought, test_count_dep_returned = dummy_sep(testset, 'DepartmentDescription')
+test_count_dep_bought, test_count_dep_returned = dummy_sep(testset, 'DepartmentDescription',
+                                                           test_bought_items, test_returned_items)
 
 # find most bought FinelineNumber
 print 'dummy test FinelineNumber'
