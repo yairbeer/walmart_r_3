@@ -92,6 +92,23 @@ def dummy_sep_sparse(df, col, sparsity, bought, returned):
     return count_bought, count_returned
 
 
+def max_digit(df, col):
+    arr = np.array(df[col])
+    max_len = 1
+    for i in range(arr.shape[0]):
+        if len(arr[i]) > max_len:
+            max_len = len(arr[i])
+    return max_len
+
+
+def fill_zeros(df, col, n):
+    arr = np.array(df[col])
+    max_len = 1
+    for i in range(arr.shape[0]):
+        if len(arr[i]) > max_len:
+            max_len = len(arr[i])
+    return arr
+
 """
 preprocessing data
 """
@@ -101,6 +118,9 @@ trainset = pd.DataFrame.from_csv('train.csv', index_col=1)
 trainset = trainset.fillna('9999')
 trainset[['Upc', 'FinelineNumber']] = trainset[['Upc', 'FinelineNumber']].astype(str)
 n = trainset.shape[0]
+
+fln_dig = max_digit(trainset, 'FinelineNumber')
+upc_dig = max_digit(trainset, 'Upc')
 
 train_result = trainset['TripType']
 train_result = train_result.groupby(by=train_result.index, sort=False).mean()
@@ -314,12 +334,22 @@ train_count_upc_bought, train_count_upc_returned = dummy_sep_sparse(trainset, 'U
                                                                               train_bought_items, train_returned_items)
 
 train_bought_items = pd.DataFrame(train_bought_items)
-train_bought_items.index = train_result.index
+train_bought_items.index = trainset.index
+train_bought_items = train_bought_items.groupby(by=train_bought_items.index, sort=False).sum()
 train_bought_items.columns = ['Bought']
 
 train_returned_items = pd.DataFrame(train_returned_items)
 train_returned_items.index = train_result.index
+train_returned_items = train_returned_items.groupby(by=train_returned_items.index, sort=False).sum()
 train_returned_items.columns = ['Returned']
+
+print [train_data_not_count.shape, train_count_dep_bought.shape, train_count_dep_returned.shape,
+       train_count_fln_bought.shape, train_count_fln_returned.shape,
+       train_count_upc_bought.shape, train_count_upc_returned.shape,
+       train_dep_num_b.shape, train_dep_num_r.shape,
+       train_fln_num_b.shape, train_fln_num_r.shape,
+       train_upc_num_b.shape, train_upc_num_r.shape,
+       train_bought_items.shape, train_returned_items.shape]
 
 train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep_returned,
                    train_count_fln_bought, train_count_fln_returned,
@@ -462,11 +492,13 @@ test_count_upc_bought, test_count_upc_returned = dummy_sep_sparse(testset, 'Upc'
                                                                   test_bought_items, test_returned_items)
 
 test_bought_items = pd.DataFrame(test_bought_items)
-test_bought_items.index = train_result.index
+test_bought_items.index = trainset.index
+test_bought_items = test_bought_items.groupby(by=test_bought_items.index, sort=False).sum()
 test_bought_items.columns = ['Bought']
 
 test_returned_items = pd.DataFrame(test_returned_items)
-test_returned_items.index = test_data_not_count.index
+test_returned_items.index = testset.index
+test_returned_items = test_returned_items.groupby(by=test_returned_items.index, sort=False).sum()
 test_returned_items.columns = ['Returned']
 
 test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_returned,
