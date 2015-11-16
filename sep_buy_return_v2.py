@@ -245,7 +245,7 @@ print 'dummy train DepartmentDescription'
 train_count_dep_bought, train_count_dep_returned = dummy_sep(trainset, 'DepartmentDescription',
                                                              train_bought_items, train_returned_items)
 
-sparsity = 1000
+sparsity = 250
 
 # # bought Fln engineered
 # parsed_series = np.array(trainset['FinelineNumber']).astype('str')
@@ -340,7 +340,7 @@ train_bought_items = train_bought_items.groupby(by=train_bought_items.index, sor
 train_bought_items.columns = ['Bought']
 
 train_returned_items = pd.DataFrame(train_returned_items)
-train_returned_items.index = train_result.index
+train_returned_items.index = trainset.index
 train_returned_items = train_returned_items.groupby(by=train_returned_items.index, sort=False).sum()
 train_returned_items.columns = ['Returned']
 
@@ -359,7 +359,7 @@ train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep
                    train_fln_num_b, train_fln_num_r,
                    train_upc_num_b, train_upc_num_r,
                    train_bought_items, train_returned_items], axis=1)
-train = remove_sparse(train, 1000)
+train = remove_sparse(train, 250)
 
 # preprocess test data
 print 'read test data'
@@ -509,7 +509,7 @@ test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_ret
                   test_fln_num_b, test_fln_num_r,
                   test_upc_num_b, test_upc_num_r,
                   test_bought_items, test_returned_items], axis=1)
-test = remove_sparse(test, 1000)
+test = remove_sparse(test, 250)
 
 # Find common coloumns
 col_train = list(train.columns.values)
@@ -526,5 +526,5 @@ test = test[col_common]
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_1000_sep_dep_fln_b_r_v5.csv")
-test.to_csv("test_dummied_1000_sep_dep_fln_b_r_v5.csv")
+train.to_csv("train_dummied_250_sep_dep_fln_b_r_v5.csv")
+test.to_csv("test_dummied_250_sep_dep_fln_b_r_v5.csv")
