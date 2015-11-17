@@ -85,7 +85,7 @@ train_returned_items.index = trainset.index
 train_returned_items.columns = ['Returned']
 train_data_returned_items = train_returned_items.groupby(by=trainset.index, sort=False).sum()
 
-sparsity = 250
+sparsity = 200
 
 # bought Fln engineered
 parsed_series = np.array(trainset['FinelineNumber']).astype('str')
