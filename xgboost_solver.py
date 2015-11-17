@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import chi2
 import xgboostlib.xgboost as xgboost
+from sklearn.decomposition import PCA
 
 __author__ = 'YBeer'
 
@@ -17,12 +18,12 @@ for i in range(1, len(result_ind)):
     train_result_xgb += (train_result == result_ind[i]) * i
 # print train_result_xgb
 
-train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v3.csv")
+train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v5.csv")
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
 
-test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v3.csv")
+test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v5.csv")
 test.fillna(0)
 
 # print train_result.shape[1], ' categorial'
@@ -43,7 +44,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [6], 'chi2_lim': [0], 'num_round': [300]}
+              'objective': ['multi:softprob'], 'max_depth': [5], 'chi2_lim': [0], 'num_round': [460]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -65,6 +66,11 @@ for params in ParameterGrid(param_grid):
     stding = StandardScaler()
     train = stding.fit_transform(train)
     test = stding.transform(test)
+
+    # # PCA decomposition
+    # pcaing = PCA()
+    # train = pcaing.fit_transform(train)
+    # test = pcaing.transform(test)
 
     # train machine learning
     xg_train = xgboost.DMatrix(train, label=train_result_xgb)
@@ -92,4 +98,4 @@ for params in ParameterGrid(param_grid):
                 submission_table[:, i] = predicted_results[:, j]
 
     submission_file[list(submission_file.columns.values)] = submission_table
-    submission_file.to_csv("chi2_feature_select_xgboost_5depth_1127var.csv")
+    submission_file.to_csv("chi2_feature_select_xgboost_5depth_1381var_pca.csv")
