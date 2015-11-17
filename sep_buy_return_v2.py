@@ -19,7 +19,6 @@ def remove_sparse(dataset, n_valid_samples):
         if np.abs(np.sum(np.array(dataset[col_names[i_in]]))) < n_valid_samples:
             dead_cols.append(col_names[i_in])
 
-    print dead_cols
     dataset = dataset.drop(dead_cols, axis=1)
     return dataset
 
@@ -102,12 +101,28 @@ def max_digit(df, col):
     return max_len
 
 
-def fill_zeros(df, col, n):
-    arr = np.array(df[col])
-    max_len = 1
-    for i in range(arr.shape[0]):
-        if len(arr[i]) > max_len:
-            max_len = len(arr[i])
+def dummy_digits(df, col, n_dig):
+    array = np.array(df[col])
+    array = fill_zeros(array, n_dig)
+    digit_dummies = []
+    for i_in in range(n_dig):
+        digit_list = list(array)
+        digit_list = map(lambda x: x[i_in], digit_list)
+        digit_list = pd.DataFrame(digit_list)
+        digit_list.index = df.index
+        digit_list.columns = [col + str(i_in)]
+        digit_dummies.append(pd.get_dummies(digit_list))
+    digit_dummies = pd.concat(digit_dummies, axis=1)
+    digit_dummies = digit_dummies.groupby(by=digit_dummies.index, sort=False).sum()
+    print digit_dummies
+    return digit_dummies
+
+
+def fill_zeros(arr, n_digits):
+    for i_in in range(arr.shape[0]):
+        if len(arr[i_in]) < n_digits:
+            arr[i_in] = arr[i_in] + str(10 ** len(arr[i_in]) < n_digits)[1:]
+    print arr
     return arr
 
 """
@@ -135,6 +150,9 @@ sparsity = 200
 
 train_data_not_count = pd.get_dummies(trainset['Weekday'])
 train_data_not_count = train_data_not_count.groupby(by=train_data_not_count.index, sort=False).mean()
+
+train_data_fln_digits = dummy_digits(trainset, 'FinelineNumber', fln_dig)
+train_data_upc_digits = dummy_digits(trainset, 'Upc', upc_dig)
 
 # separate between returned and bought goods
 train_total_items = np.array(trainset['ScanCount']).reshape((n, 1))
@@ -248,84 +266,6 @@ print 'dummy train DepartmentDescription'
 train_count_dep_bought, train_count_dep_returned = dummy_sep(trainset, 'DepartmentDescription',
                                                              train_bought_items, train_returned_items)
 
-# # bought Fln engineered
-# parsed_series = np.array(trainset['FinelineNumber']).astype('str')
-# parsed_series = vec_parse_rule(parsed_series, 2)
-# parsed_series = pd.DataFrame(parsed_series)
-# parsed_series.columns = ['fln_subcat_2']
-# parsed_series.index = trainset.index
-# # print parsed_series
-#
-# # print parsed_series
-# parsed_density = parsed_series['fln_subcat_2'].value_counts()
-# # print parsed_density
-#
-# n_features = np.sum(parsed_density > sparsity)
-# print n_features
-#
-# fln_density = parsed_density.iloc[:n_features]
-# fln_density = list(fln_density.index)
-#
-# # remove sparse Upc
-# tmp_series = np.zeros((trainset.shape[0], 1))
-# for i in range(trainset.shape[0]):
-#     fln_number = parsed_series.iloc[i]['fln_subcat_2']
-#     if fln_number in fln_density:
-#         tmp_series[i] = fln_number
-# parsed_series['fln_subcat_2'] = tmp_series
-# # print parsed_series['upc_subcat'].value_counts()
-#
-# # dummy sub Upc
-# print 'dummy train sub Fln'
-# train_data_count_fln_sub_2 = pd.get_dummies(parsed_series['fln_subcat_2'])
-# tmp_index = train_data_count_fln_sub_2.index
-# tmp_columns = list(train_data_count_fln_sub_2.columns.values)
-# tmp_table = np.array(train_data_count_fln_sub_2) * train_total_items
-# train_data_count_fln_sub_2 = pd.DataFrame(tmp_table)
-# train_data_count_fln_sub_2.columns = tmp_columns
-# train_data_count_fln_sub_2.index = tmp_index
-# train_data_count_fln_sub_2 = train_data_count_fln_sub_2.groupby(by=train_data_count_fln_sub_2.index, sort=False).sum()
-# train_data_count_fln_sub_2 = add_prefix(train_data_count_fln_sub_2, 'fln_subcat_2')
-#
-# # bought Upc engineered
-# parsed_series = np.array(trainset['FinelineNumber']).astype('str')
-# parsed_series = vec_parse_rule(parsed_series, 3)
-# parsed_series = pd.DataFrame(parsed_series)
-# parsed_series.columns = ['fln_subcat_3']
-# parsed_series.index = trainset.index
-# # print parsed_series
-#
-# # print parsed_series
-# parsed_density = parsed_series['fln_subcat_3'].value_counts()
-# # print parsed_density
-#
-# n_features = np.sum(parsed_density > sparsity)
-# print n_features
-#
-# fln_density = parsed_density.iloc[:n_features]
-# fln_density = list(fln_density.index)
-#
-# # remove sparse Upc
-# tmp_series = np.zeros((trainset.shape[0], 1))
-# for i in range(trainset.shape[0]):
-#     fln_number = parsed_series.iloc[i]['fln_subcat_3']
-#     if fln_number in fln_density:
-#         tmp_series[i] = fln_number
-# parsed_series['fln_subcat_3'] = tmp_series
-# # print parsed_series['upc_subcat'].value_counts()
-#
-# # dummy sub Upc
-# print 'dummy train sub Fln'
-# train_data_count_fln_sub_3 = pd.get_dummies(parsed_series['fln_subcat_3'])
-# tmp_index = train_data_count_fln_sub_3.index
-# tmp_columns = list(train_data_count_fln_sub_3.columns.values)
-# tmp_table = np.array(train_data_count_fln_sub_3) * train_total_items
-# train_data_count_fln_sub_3 = pd.DataFrame(tmp_table)
-# train_data_count_fln_sub_3.columns = tmp_columns
-# train_data_count_fln_sub_3.index = tmp_index
-# train_data_count_fln_sub_3 = train_data_count_fln_sub_3.groupby(by=train_data_count_fln_sub_3.index, sort=False).sum()
-# train_data_count_fln_sub_3 = add_prefix(train_data_count_fln_sub_3, 'fln_subcat_3')
-
 # find most bought FinelineNumber
 print 'dummy train FinelineNumber'
 train_count_fln_bought, train_count_fln_returned = dummy_sep_sparse(trainset, 'FinelineNumber', sparsity,
@@ -348,6 +288,7 @@ train_returned_items.columns = ['Returned']
 train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep_returned,
                    train_count_fln_bought, train_count_fln_returned,
                    train_count_upc_bought, train_count_upc_returned,
+                   train_data_fln_digits, train_data_upc_digits,
                    train_dep_num_b, train_dep_num_r,
                    train_fln_num_b, train_fln_num_r,
                    train_upc_num_b, train_upc_num_r,
@@ -366,6 +307,9 @@ test_data_not_count = test_data_not_count.groupby(by=test_data_not_count.index, 
 
 n_test = testset.shape[0]
 n_trips_test = test_data_not_count.shape[0]
+
+test_data_fln_digits = dummy_digits(testset, 'FinelineNumber', fln_dig)
+test_data_upc_digits = dummy_digits(testset, 'Upc', upc_dig)
 
 test_dep_num_b = np.ones((test_data_not_count.shape[0], 1))
 test_dep_num_b = pd.DataFrame(test_dep_num_b)
@@ -500,6 +444,7 @@ test_returned_items.columns = ['Returned']
 test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_returned,
                   test_count_fln_bought, test_count_fln_returned,
                   test_count_upc_bought, test_count_upc_returned,
+                  test_data_fln_digits, test_data_upc_digits,
                   test_dep_num_b, test_dep_num_r,
                   test_fln_num_b, test_fln_num_r,
                   test_upc_num_b, test_upc_num_r,
