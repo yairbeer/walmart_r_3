@@ -114,15 +114,13 @@ def dummy_digits(df, col, n_dig):
         digit_dummies.append(pd.get_dummies(digit_list))
     digit_dummies = pd.concat(digit_dummies, axis=1)
     digit_dummies = digit_dummies.groupby(by=digit_dummies.index, sort=False).sum()
-    print digit_dummies
     return digit_dummies
 
 
 def fill_zeros(arr, n_digits):
     for i_in in range(arr.shape[0]):
         if len(arr[i_in]) < n_digits:
-            arr[i_in] = arr[i_in] + str(10 ** len(arr[i_in]) < n_digits)[1:]
-    print arr
+            arr[i_in] = arr[i_in] + str(10 ** (n_digits - len(arr[i_in])))[1:]
     return arr
 
 """
