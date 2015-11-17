@@ -352,10 +352,7 @@ train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep
                    train_fln_num_b, train_fln_num_r,
                    train_upc_num_b, train_upc_num_r,
                    train_bought_items, train_returned_items], axis=1)
-print train
 train = remove_sparse(train, sparsity)
-print train
-
 
 # preprocess test data
 print 'read test data'
@@ -507,7 +504,6 @@ test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_ret
                   test_fln_num_b, test_fln_num_r,
                   test_upc_num_b, test_upc_num_r,
                   test_bought_items, test_returned_items], axis=1)
-print test
 test = remove_sparse(test, sparsity)
 
 # Find common coloumns
