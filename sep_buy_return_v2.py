@@ -144,7 +144,7 @@ train_result = train_result.groupby(by=train_result.index, sort=False).mean()
 
 n_trips = train_result.shape[0]
 
-sparsity = 200
+sparsity = 180
 
 train_data_not_count = pd.get_dummies(trainset['Weekday'])
 train_data_not_count = train_data_not_count.groupby(by=train_data_not_count.index, sort=False).mean()
@@ -291,7 +291,7 @@ train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep
                    train_fln_num_b, train_fln_num_r,
                    train_upc_num_b, train_upc_num_r,
                    train_bought_items, train_returned_items], axis=1)
-train = remove_sparse(train, sparsity)
+train = remove_sparse(train, sparsity * 0.25)
 
 # preprocess test data
 print 'read test data'
@@ -447,7 +447,7 @@ test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_ret
                   test_fln_num_b, test_fln_num_r,
                   test_upc_num_b, test_upc_num_r,
                   test_bought_items, test_returned_items], axis=1)
-test = remove_sparse(test, sparsity)
+test = remove_sparse(test, sparsity * 0.25)
 
 # Find common coloumns
 col_train = list(train.columns.values)
@@ -464,5 +464,5 @@ test = test[col_common].astype('int')
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_200_sep_dep_fln_b_r_v5.csv")
-test.to_csv("test_dummied_200_sep_dep_fln_b_r_v5.csv")
+train.to_csv("train_dummied_180_sep_dep_fln_b_r_v5.csv")
+test.to_csv("test_dummied_180_sep_dep_fln_b_r_v5.csv")

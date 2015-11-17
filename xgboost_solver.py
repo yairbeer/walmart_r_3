@@ -18,12 +18,12 @@ for i in range(1, len(result_ind)):
     train_result_xgb += (train_result == result_ind[i]) * i
 # print train_result_xgb
 
-train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v5.csv")
+train = pd.DataFrame.from_csv("train_dummied_200_sep_dep_fln_b_r_v5.csv").astype('float')
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
 
-test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v5.csv")
+test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v5.csv").astype('float')
 test.fillna(0)
 
 # print train_result.shape[1], ' categorial'
@@ -36,15 +36,15 @@ for i in range(train_arr.shape[0]):
 
 chi2_params = chi2(train_arr, train_result)
 
-# for i in range(train_arr.shape[1]):
-#     print col_list[i], chi2_params[0][i]
+for i in range(train_arr.shape[1]):
+    print col_list[i], chi2_params[0][i]
 
 del train_arr
 
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [5], 'chi2_lim': [0], 'num_round': [460]}
+              'objective': ['multi:softprob'], 'max_depth': [5], 'chi2_lim': [0], 'num_round': [40]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -98,4 +98,4 @@ for params in ParameterGrid(param_grid):
                 submission_table[:, i] = predicted_results[:, j]
 
     submission_file[list(submission_file.columns.values)] = submission_table
-    submission_file.to_csv("chi2_feature_select_xgboost_5depth_1381var_pca.csv")
+    submission_file.to_csv("chi2_feature_select_xgboost_5depth_v5.csv")
