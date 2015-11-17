@@ -16,10 +16,11 @@ def remove_sparse(dataset, n_valid_samples):
     col_names = list(dataset.columns.values)
     dead_cols = []
     for i_in in range(len(col_names)):
-        if np.sum(dataset[col_names[i_in]]) < sparsity:
+        if np.abs(np.sum(np.array(dataset[col_names[i_in]]))) < n_valid_samples:
             dead_cols.append(col_names[i_in])
-    dataset = dataset.drop(dead_cols)
+
     print dead_cols
+    dataset = dataset.drop(dead_cols, axis=1)
     return dataset
 
 
@@ -40,7 +41,7 @@ def dummy_sep(df, col, bought, returned):
     count_bought.columns = tmp_columns
     count_bought.index = tmp_index
     count_bought = count_bought.groupby(by=count_bought.index, sort=False).sum()
-    count_bought = add_prefix(count_bought, col + '_B_')
+    count_bought = add_prefix(count_bought, col[:3] + '_B_')
 
     # returned Department
     tmp_table = np.array(dum) * returned
@@ -48,7 +49,7 @@ def dummy_sep(df, col, bought, returned):
     count_returned.columns = tmp_columns
     count_returned.index = tmp_index
     count_returned = count_returned.groupby(by=count_returned.index, sort=False).sum()
-    count_returned = add_prefix(count_returned, col + '_R_')
+    count_returned = add_prefix(count_returned, col[:3] + '_R_')
     return count_bought, count_returned
 
 
@@ -77,7 +78,7 @@ def dummy_sep_sparse(df, col, sparsity, bought, returned):
     count_bought.columns = tmp_columns
     count_bought.index = tmp_index
     count_bought = count_bought.groupby(by=count_bought.index, sort=False).sum()
-    count_bought = add_prefix(count_bought, col + '_B_')
+    count_bought = add_prefix(count_bought, col[:3] + '_B_')
 
     # returned
     data_count = pd.get_dummies(df[col])
@@ -88,7 +89,7 @@ def dummy_sep_sparse(df, col, sparsity, bought, returned):
     count_returned.columns = tmp_columns
     count_returned.index = tmp_index
     count_returned = count_returned.groupby(by=count_returned.index, sort=False).sum()
-    count_returned = add_prefix(count_returned, col + '_R_')
+    count_returned = add_prefix(count_returned, col[:3] + '_R_')
     return count_bought, count_returned
 
 
@@ -97,7 +98,6 @@ def max_digit(df, col):
     max_len = 1
     for i in range(arr.shape[0]):
         if len(arr[i]) > max_len:
-            print arr[i], len(arr[i])
             max_len = len(arr[i])
     return max_len
 
@@ -117,6 +117,7 @@ preprocessing data
 print 'read train data'
 trainset = pd.DataFrame.from_csv('train.csv', index_col=1)
 trainset = trainset.fillna('9999')
+trainset[['Upc', 'FinelineNumber']] = trainset[['Upc', 'FinelineNumber']].astype(long)
 trainset[['Upc', 'FinelineNumber']] = trainset[['Upc', 'FinelineNumber']].astype(str)
 n = trainset.shape[0]
 
@@ -129,6 +130,8 @@ train_result = train_result.groupby(by=train_result.index, sort=False).mean()
 # train_result.to_csv("train_result.csv")
 
 n_trips = train_result.shape[0]
+
+sparsity = 1000
 
 train_data_not_count = pd.get_dummies(trainset['Weekday'])
 train_data_not_count = train_data_not_count.groupby(by=train_data_not_count.index, sort=False).mean()
@@ -245,8 +248,6 @@ print 'dummy train DepartmentDescription'
 train_count_dep_bought, train_count_dep_returned = dummy_sep(trainset, 'DepartmentDescription',
                                                              train_bought_items, train_returned_items)
 
-sparsity = 250
-
 # # bought Fln engineered
 # parsed_series = np.array(trainset['FinelineNumber']).astype('str')
 # parsed_series = vec_parse_rule(parsed_series, 2)
@@ -344,14 +345,6 @@ train_returned_items.index = trainset.index
 train_returned_items = train_returned_items.groupby(by=train_returned_items.index, sort=False).sum()
 train_returned_items.columns = ['Returned']
 
-print [train_data_not_count.shape, train_count_dep_bought.shape, train_count_dep_returned.shape,
-       train_count_fln_bought.shape, train_count_fln_returned.shape,
-       train_count_upc_bought.shape, train_count_upc_returned.shape,
-       train_dep_num_b.shape, train_dep_num_r.shape,
-       train_fln_num_b.shape, train_fln_num_r.shape,
-       train_upc_num_b.shape, train_upc_num_r.shape,
-       train_bought_items.shape, train_returned_items.shape]
-
 train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep_returned,
                    train_count_fln_bought, train_count_fln_returned,
                    train_count_upc_bought, train_count_upc_returned,
@@ -359,12 +352,17 @@ train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep
                    train_fln_num_b, train_fln_num_r,
                    train_upc_num_b, train_upc_num_r,
                    train_bought_items, train_returned_items], axis=1)
-train = remove_sparse(train, 250)
+print train
+train = remove_sparse(train, sparsity)
+print train
+
 
 # preprocess test data
 print 'read test data'
 testset = pd.DataFrame.from_csv('test.csv', index_col=0)
-testset = testset.fillna('-999')
+testset = testset.fillna('9999')
+testset[['Upc', 'FinelineNumber']] = testset[['Upc', 'FinelineNumber']].astype(long)
+testset[['Upc', 'FinelineNumber']] = testset[['Upc', 'FinelineNumber']].astype(str)
 
 test_data_not_count = pd.get_dummies(testset['Weekday'])
 test_data_not_count = test_data_not_count.groupby(by=test_data_not_count.index, sort=False).mean()
@@ -493,7 +491,7 @@ test_count_upc_bought, test_count_upc_returned = dummy_sep_sparse(testset, 'Upc'
                                                                   test_bought_items, test_returned_items)
 
 test_bought_items = pd.DataFrame(test_bought_items)
-test_bought_items.index = trainset.index
+test_bought_items.index = testset.index
 test_bought_items = test_bought_items.groupby(by=test_bought_items.index, sort=False).sum()
 test_bought_items.columns = ['Bought']
 
@@ -509,7 +507,8 @@ test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_ret
                   test_fln_num_b, test_fln_num_r,
                   test_upc_num_b, test_upc_num_r,
                   test_bought_items, test_returned_items], axis=1)
-test = remove_sparse(test, 250)
+print test
+test = remove_sparse(test, sparsity)
 
 # Find common coloumns
 col_train = list(train.columns.values)
@@ -521,8 +520,8 @@ col_common = []
 for col in col_train:
     if col in col_test:
         col_common.append(col)
-train = train[col_common]
-test = test[col_common]
+train = train[col_common].astype('int')
+test = test[col_common].astype('int')
 print col_common
 
 print 'write to data'
