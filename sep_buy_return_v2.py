@@ -148,9 +148,12 @@ sparsity = 180
 
 train_data_not_count = pd.get_dummies(trainset['Weekday'])
 train_data_not_count = train_data_not_count.groupby(by=train_data_not_count.index, sort=False).mean()
+train_data_not_count = train_data_not_count.astype('int')
 
 train_data_fln_digits = dummy_digits(trainset, 'FinelineNumber', fln_dig)
+train_data_fln_digits = train_data_fln_digits.astype('int')
 train_data_upc_digits = dummy_digits(trainset, 'Upc', upc_dig)
+train_data_upc_digits = train_data_upc_digits.astype('int')
 
 # separate between returned and bought goods
 train_total_items = np.array(trainset['ScanCount']).reshape((n, 1))
@@ -264,24 +267,33 @@ print 'dummy train DepartmentDescription'
 train_count_dep_bought, train_count_dep_returned = dummy_sep(trainset, 'DepartmentDescription',
                                                              train_bought_items, train_returned_items)
 
+train_count_dep_bought = train_count_dep_bought.astype('int')
+train_count_dep_returned = train_count_dep_returned.astype('int')
+
 # find most bought FinelineNumber
 print 'dummy train FinelineNumber'
 train_count_fln_bought, train_count_fln_returned = dummy_sep_sparse(trainset, 'FinelineNumber', sparsity,
                                                                               train_bought_items, train_returned_items)
+train_count_fln_bought = train_count_fln_bought.astype('int')
+train_count_fln_returned = train_count_fln_returned.astype('int')
 
 print 'dummy train Upc'
 train_count_upc_bought, train_count_upc_returned = dummy_sep_sparse(trainset, 'Upc', sparsity,
                                                                               train_bought_items, train_returned_items)
+train_count_upc_bought = train_count_upc_bought.astype('int')
+train_count_upc_returned = train_count_upc_returned.astype('int')
 
 train_bought_items = pd.DataFrame(train_bought_items)
 train_bought_items.index = trainset.index
 train_bought_items = train_bought_items.groupby(by=train_bought_items.index, sort=False).sum()
 train_bought_items.columns = ['Bought']
+train_bought_items = train_bought_items.astype('int')
 
 train_returned_items = pd.DataFrame(train_returned_items)
 train_returned_items.index = trainset.index
 train_returned_items = train_returned_items.groupby(by=train_returned_items.index, sort=False).sum()
 train_returned_items.columns = ['Returned']
+train_returned_items = train_returned_items.astype('int')
 
 train = pd.concat([train_data_not_count, train_count_dep_bought, train_count_dep_returned,
                    train_count_fln_bought, train_count_fln_returned,
@@ -302,12 +314,15 @@ testset[['Upc', 'FinelineNumber']] = testset[['Upc', 'FinelineNumber']].astype(s
 
 test_data_not_count = pd.get_dummies(testset['Weekday'])
 test_data_not_count = test_data_not_count.groupby(by=test_data_not_count.index, sort=False).mean()
+test_data_not_count = test_data_not_count.astype('int')
 
 n_test = testset.shape[0]
 n_trips_test = test_data_not_count.shape[0]
 
 test_data_fln_digits = dummy_digits(testset, 'FinelineNumber', fln_dig)
+test_data_fln_digits = test_data_fln_digits.astype('int')
 test_data_upc_digits = dummy_digits(testset, 'Upc', upc_dig)
+test_data_upc_digits = test_data_upc_digits.astype('int')
 
 test_dep_num_b = np.ones((test_data_not_count.shape[0], 1))
 test_dep_num_b = pd.DataFrame(test_dep_num_b)
@@ -419,25 +434,32 @@ test_returned_items = np.clip(test_total_items, a_min=-99999, a_max=0)
 print 'dummy test DepartmentDescription'
 test_count_dep_bought, test_count_dep_returned = dummy_sep(testset, 'DepartmentDescription',
                                                            test_bought_items, test_returned_items)
+test_count_dep_bought = test_count_dep_bought.astype('int')
+test_count_dep_returned = test_count_dep_returned.astype('int')
 
-# find most bought FinelineNumber
 print 'dummy test FinelineNumber'
 test_count_fln_bought, test_count_fln_returned = dummy_sep_sparse(testset, 'FinelineNumber', sparsity,
                                                                   test_bought_items, test_returned_items)
+test_count_fln_bought = test_count_fln_bought.astype('int')
+test_count_fln_returned = test_count_fln_returned.astype('int')
 
 print 'dummy test Upc'
 test_count_upc_bought, test_count_upc_returned = dummy_sep_sparse(testset, 'Upc', sparsity,
                                                                   test_bought_items, test_returned_items)
+test_count_upc_bought = test_count_upc_bought.astype('int')
+test_count_upc_returned = test_count_upc_returned.astype('int')
 
 test_bought_items = pd.DataFrame(test_bought_items)
 test_bought_items.index = testset.index
 test_bought_items = test_bought_items.groupby(by=test_bought_items.index, sort=False).sum()
 test_bought_items.columns = ['Bought']
+test_bought_items = test_bought_items.astype('int')
 
 test_returned_items = pd.DataFrame(test_returned_items)
 test_returned_items.index = testset.index
 test_returned_items = test_returned_items.groupby(by=test_returned_items.index, sort=False).sum()
 test_returned_items.columns = ['Returned']
+test_returned_items = test_returned_items.astype('int')
 
 test = pd.concat([test_data_not_count, test_count_dep_bought, test_count_dep_returned,
                   test_count_fln_bought, test_count_fln_returned,
