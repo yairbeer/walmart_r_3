@@ -19,7 +19,7 @@ for i in range(1, len(result_ind)):
     train_result_xgb += (train_result == result_ind[i]) * i
 # print train_result_xgb
 
-train = pd.DataFrame.from_csv("train_dummied_180_sep_dep_fln_b_r_v5.csv")
+train = pd.DataFrame.from_csv("train_dummied_150_sep_dep_fln_b_r_v5.csv")
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
