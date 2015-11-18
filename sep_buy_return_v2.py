@@ -144,7 +144,7 @@ train_result = train_result.groupby(by=train_result.index, sort=False).mean()
 
 n_trips = train_result.shape[0]
 
-sparsity = 180
+sparsity = 150
 
 train_data_not_count = pd.get_dummies(trainset['Weekday'])
 train_data_not_count = train_data_not_count.groupby(by=train_data_not_count.index, sort=False).mean()
@@ -486,5 +486,5 @@ test = test[col_common].astype('int')
 print col_common
 
 print 'write to data'
-train.to_csv("train_dummied_180_sep_dep_fln_b_r_v5.csv")
-test.to_csv("test_dummied_180_sep_dep_fln_b_r_v5.csv")
+train.to_csv("train_dummied_150_sep_dep_fln_b_r_v5.csv")
+test.to_csv("test_dummied_150_sep_dep_fln_b_r_v5.csv")
