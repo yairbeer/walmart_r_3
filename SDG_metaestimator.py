@@ -15,7 +15,7 @@ result_ind = list(train_result[col[0]].value_counts().index)
 # train_result = pd.get_dummies(train_result)
 train_result = np.array(train_result).ravel()
 
-train = pd.DataFrame.from_csv("train_dummied_150_sep_dep_fln_b_r_v5.csv")
+train = pd.DataFrame.from_csv("train_dummied_150_sep_dep_fln_b_r_v5.csv").astype('float')
 train.fillna(0)
 train_arr = np.array(train)
 col_list = list(train.columns.values)
@@ -38,7 +38,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.03, 0.1, 0.3], 'n_iter': [200], 'chi2_lim': [1000],
-              'penalty': ['elasticnet'], 'l1_ratio': ['0.15'], 'n_jobs': [-1]}
+              'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [2]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -69,8 +69,9 @@ for params in ParameterGrid(param_grid):
         X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
         y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
 
-        classifier = SGDClassifier(params)
-        classifier.fit(X_train, y_test)
+        classifier = SGDClassifier(loss=params['loss'], alpha=params['alpha'], n_iter=params['n_iter'],
+                                   penalty=params['penalty'], l1_ratio=params['l1_ratio'], n_jobs=params['n_jobs'])
+        classifier.fit(X_train, y_train)
 
         # predict
         class_pred = classifier.predict_proba(X_test)
