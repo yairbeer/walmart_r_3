@@ -37,8 +37,8 @@ del train_arr
 
 best_metric = 10
 best_params = []
-param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [5], 'chi2_lim': [10000], 'num_round': [30]}
+param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.03, 0.1, 0.3], 'n_iter': [200], 'chi2_lim': [1000],
+              'penalty': ['elasticnet'], 'l1_ratio': ['0.15'], 'n_jobs': [-1]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -64,17 +64,18 @@ for params in ParameterGrid(param_grid):
     cv_n = 4
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
     metric = []
-    meta_estimator_xgboost = np.zeros((train_arr.shape[0], 38))
+    meta_estimator = np.zeros((train_arr.shape[0], 38))
     for train_index, test_index in kf:
         X_train, X_test = train_arr[train_index, :], train_arr[test_index, :]
         y_train, y_test = train_result[train_index].ravel(), train_result[test_index].ravel()
 
-        classifier = xgboost.train(params)
+        classifier = SGDClassifier(params)
+        classifier.fit(X_train, y_test)
 
         # predict
         class_pred = classifier.predict_proba(X_test)
 
-        meta_estimator_xgboost[test_index, :] = class_pred
+        meta_estimator[test_index, :] = class_pred
 
         # evaluate
         # print log_loss(y_test, class_pred)
@@ -86,7 +87,7 @@ for params in ParameterGrid(param_grid):
         best_params = params
     print 'The best metric is:', best_metric, 'for the params:', best_params
 
-    meta_estimator_xgboost = pd.DataFrame(meta_estimator_xgboost)
-    meta_estimator_xgboost.index = result_ind
-    meta_estimator_xgboost.to_csv('meta_SDG_log.csv')
+    meta_estimator = pd.DataFrame(meta_estimator)
+    meta_estimator.index = result_ind
+    meta_estimator.to_csv('meta_SDG_log.csv')
 

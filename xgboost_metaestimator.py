@@ -99,6 +99,6 @@ for params in ParameterGrid(param_grid):
     print 'The best metric is:', best_metric, 'for the params:', best_params
 
     meta_estimator_xgboost = pd.DataFrame(meta_estimator_xgboost)
-    meta_estimator_xgboost.index = result_ind
+    meta_estimator_xgboost.index = train_result.index
     meta_estimator_xgboost.to_csv('meta_xgboost_5_dep.csv')
 
