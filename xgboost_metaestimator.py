@@ -42,7 +42,7 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [5], 'chi2_lim': [10000], 'num_round': [30]}
+              'objective': ['multi:softprob'], 'max_depth': [5], 'chi2_lim': [10000], 'num_round': [20]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -99,6 +99,6 @@ for params in ParameterGrid(param_grid):
     print 'The best metric is:', best_metric, 'for the params:', best_params
 
     meta_estimator_xgboost = pd.DataFrame(meta_estimator_xgboost)
-    meta_estimator_xgboost.index = train_result.index
+    meta_estimator_xgboost.index = train.index
     meta_estimator_xgboost.to_csv('meta_xgboost_5_dep.csv')
 

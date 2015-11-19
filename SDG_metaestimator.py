@@ -88,6 +88,6 @@ for params in ParameterGrid(param_grid):
     print 'The best metric is:', best_metric, 'for the params:', best_params
 
     meta_estimator = pd.DataFrame(meta_estimator)
-    meta_estimator.index = result_ind
-    meta_estimator.to_csv('meta_SDG_log.csv')
+    meta_estimator.index = train.index
+    meta_estimator.to_csv('meta_SDG_' + params['loss'] + '.csv')
 
