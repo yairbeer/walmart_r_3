@@ -17,44 +17,45 @@ train_result = np.array(train_result).ravel()
 
 train = pd.DataFrame.from_csv("train_dummied_150_sep_dep_fln_b_r_v5.csv").astype('float')
 train.fillna(0)
-train_arr = np.array(train)
+# train_arr = np.array(train)
 col_list = list(train.columns.values)
 
-# print train_result.shape[1], ' categorial'
-print train.shape[1], ' columns'
-
-print 'absing'
-for i in range(train_arr.shape[0]):
-    for j in range(train_arr.shape[1]):
-        train_arr[i, j] = np.abs(train_arr[i, j])
-
-chi2_params = chi2(train_arr, train_result)
+# # print train_result.shape[1], ' categorial'
+# print train.shape[1], ' columns'
+#
+# print 'absing'
+# for i in range(train_arr.shape[0]):
+#     for j in range(train_arr.shape[1]):
+#         train_arr[i, j] = np.abs(train_arr[i, j])
+#
+# chi2_params = chi2(train_arr, train_result)
 
 # for i in range(train_arr.shape[1]):
 #     print col_list[i], chi2_params[0][i]
 
-del train_arr
+# del train_arr
 
 best_metric = 10
 best_params = []
 # param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.1], 'n_iter': [200], 'chi2_lim': [1000],
-#               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [3]}
-param_grid = {'loss': ['modified_huber'], 'alpha': [0.0001, 0.0003, 0.001], 'n_iter': [200], 'chi2_lim': [1000],
-              'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [3]}
+#               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
+param_grid = {'loss': ['modified_huber'], 'alpha': [0.001, 0.003, 0.01, 0.03], 'n_iter': [40],
+              # 'chi2_lim': [1000],
+              'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
 
 for params in ParameterGrid(param_grid):
     print params
 
-    # filtering low chi2 cols
-    chi2_lim = params['chi2_lim']
-    chi2_cols = []
-    for i in range(train.shape[1]):
-        if chi2_params[0][i] > chi2_lim:
-            chi2_cols.append(col_list[i])
+    # # filtering low chi2 cols
+    # chi2_lim = params['chi2_lim']
+    # chi2_cols = []
+    # for i in range(train.shape[1]):
+    #     if chi2_params[0][i] > chi2_lim:
+    #         chi2_cols.append(col_list[i])
 
-    print len(chi2_cols), ' chi2 columns'
+    # print len(chi2_cols), ' chi2 columns'
     train_arr = train.copy(deep=True)
-    train_arr = train_arr[chi2_cols]
+    # train_arr = train_arr[chi2_cols]
 
     # Standardizing
     stding = StandardScaler()
