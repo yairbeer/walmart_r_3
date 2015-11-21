@@ -39,7 +39,7 @@ best_metric = 10
 best_params = []
 # param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.1], 'n_iter': [200], 'chi2_lim': [1000],
 #               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
-param_grid = {'loss': ['modified_huber'], 'alpha': [0.001, 0.003, 0.01, 0.03], 'n_iter': [40],
+param_grid = {'loss': ['modified_huber'], 'alpha': [0.003], 'n_iter': [10, 20, 40, 80, 160, 320],
               # 'chi2_lim': [1000],
               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
 
