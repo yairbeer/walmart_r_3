@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import chi2
 import xgboostlib.xgboost as xgboost
 from sklearn.decomposition import PCA
+import glob
 
 __author__ = 'YBeer'
 
@@ -18,14 +19,12 @@ for i in range(1, len(result_ind)):
     train_result_xgb += (train_result == result_ind[i]) * i
 # print train_result_xgb
 
-train = pd.DataFrame.from_csv("train_dummied_150_sep_dep_fln_b_r_v5.csv").astype('float')
-train.fillna(0)
-train_arr = np.array(train)
-col_list = list(train.columns.values)
-
-"""
-horizontal stack ensemble
-"""
+# combining meta_estimators
+train = glob.glob('meta*')
+print train
+for i in range(len(train)):
+    train[i] = pd.DataFrame.from_csv(train[i])
+train = pd.concat(train, axis=1)
 
 test = pd.DataFrame.from_csv("test_dummied_150_sep_dep_fln_b_r_v5.csv").astype('float')
 test.fillna(0)
