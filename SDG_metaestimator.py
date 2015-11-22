@@ -37,11 +37,11 @@ col_list = list(train.columns.values)
 
 best_metric = 10
 best_params = []
-# param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.1], 'n_iter': [200], 'chi2_lim': [1000],
-#               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
-param_grid = {'loss': ['log'], 'alpha': [0.0001, 0.001, 0.01], 'n_iter': [200],
-              # 'chi2_lim': [1000],
+param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.03], 'n_iter': [200], 'chi2_lim': [1000],
               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
+# param_grid = {'loss': ['log'], 'alpha': [0.01], 'n_iter': [200],
+#               # 'chi2_lim': [1000],
+#               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
 
 for params in ParameterGrid(param_grid):
     print params
@@ -93,5 +93,5 @@ for params in ParameterGrid(param_grid):
 
     meta_estimator = pd.DataFrame(meta_estimator)
     meta_estimator.index = train.index
-    # meta_estimator.to_csv('meta_SDG_' + params['loss'] + '.csv')
+    meta_estimator.to_csv('meta_SDG_' + params['loss'] + '.csv')
 
