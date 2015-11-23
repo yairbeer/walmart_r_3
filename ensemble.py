@@ -18,13 +18,13 @@ for i in range(1, len(result_ind)):
 # print train_result_xgb
 
 # combining meta_estimators
-train = glob.glob('meta_tr*')
+train = glob.glob('meta_train*')
 print train
 for i in range(len(train)):
     train[i] = pd.DataFrame.from_csv(train[i])
 train = pd.concat(train, axis=1)
 
-test = glob.glob('meta_te*')
+test = glob.glob('meta_test*')
 print test
 for i in range(len(test)):
     test[i] = pd.DataFrame.from_csv(test[i])
@@ -32,11 +32,6 @@ test = pd.concat(test, axis=1)
 
 # print train_result.shape[1], ' categorial'
 print train.shape[1], ' columns'
-
-# Standardizing
-stding = StandardScaler()
-train = stding.fit_transform(train)
-test = stding.transform(test)
 
 best_metric = 10
 best_params = []
@@ -46,6 +41,11 @@ param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': [
 
 for params in ParameterGrid(param_grid):
     print params
+
+    # Standardizing
+    stding = StandardScaler()
+    train = stding.fit_transform(train)
+    test = stding.transform(test)
 
     # train machine learning
     xg_train = xgboost.DMatrix(train, label=train_result_xgb)
