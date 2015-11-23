@@ -124,18 +124,8 @@ for params in ParameterGrid(param_grid):
     predicted_results = xgclassifier.predict(xg_test)
     predicted_results = predicted_results.reshape(test.shape[0], 38)
 
-    print 'writing to file'
-    submission_file = pd.DataFrame.from_csv("sample_submission.csv")
-    submission_cols = list(submission_file.columns.values)
-    submission_vals = map(lambda x: int(x.split("_")[1]), submission_cols)
+    predicted_results = pd.DataFrame(predicted_results)
+    predicted_results.index = test.index
+    predicted_results.to_csv("meta_test_xgboost_5_dep.csv")
 
-    submission_table = np.zeros(predicted_results.shape)
-    for i in range(predicted_results.shape[1]):
-        for j in range(predicted_results.shape[1]):
-            if submission_vals[i] == result_ind[j]:
-                print 'adding triptype ', submission_vals[i]
-                submission_table[:, i] = predicted_results[:, j]
-
-    submission_file[list(submission_file.columns.values)] = submission_table
-    submission_file.to_csv("meta_test_xgboost_5_dep.csv")
 

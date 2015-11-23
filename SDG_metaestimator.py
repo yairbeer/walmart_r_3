@@ -38,9 +38,9 @@ del train_arr
 best_metric = 10
 best_params = []
 param_grid = [
-              # {'loss': ['modified_huber'], 'alpha': [0.003], 'n_iter': [40, 80, 120], 'chi2_lim': [20000],
-              #  'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]},
-              {'loss': ['log'], 'alpha': [0.03], 'n_iter': [200], 'chi2_lim': [40000, 20000, 10000],
+              {'loss': ['modified_huber'], 'alpha': [0.003], 'n_iter': [40], 'chi2_lim': [20000],
+               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]},
+              {'loss': ['log'], 'alpha': [0.03], 'n_iter': [40], 'chi2_lim': [40000],
                'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}]
 # param_grid = {'loss': ['log'], 'alpha': [0.01], 'n_iter': [200],
 #               # 'chi2_lim': [1000],
