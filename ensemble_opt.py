@@ -34,8 +34,8 @@ print train.shape[1], ' columns'
 
 best_metric = 10
 best_params = []
-param_grid = {'silent': [1], 'nthread': [2], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [4, 5, 6], 'chi2_lim': [0], 'num_round': [300],
+param_grid = {'silent': [1], 'nthread': [3], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
+              'objective': ['multi:softprob'], 'max_depth': [4, 5, 6], 'chi2_lim': [0], 'num_round': [200],
               'subsample': [0.5, 0.75, 1]}
 
 for params in ParameterGrid(param_grid):
