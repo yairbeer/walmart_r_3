@@ -37,8 +37,11 @@ del train_arr
 
 best_metric = 10
 best_params = []
-param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.03, 0.1, 0.3], 'n_iter': [50], 'chi2_lim': [10000],
-              'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
+param_grid = [
+              # {'loss': ['modified_huber'], 'alpha': [0.003], 'n_iter': [40, 80, 120], 'chi2_lim': [20000],
+              #  'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]},
+              {'loss': ['log'], 'alpha': [0.03], 'n_iter': [200], 'chi2_lim': [40000, 20000, 10000],
+               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}]
 # param_grid = {'loss': ['log'], 'alpha': [0.01], 'n_iter': [200],
 #               # 'chi2_lim': [1000],
 #               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
@@ -95,7 +98,7 @@ for params in ParameterGrid(param_grid):
     meta_estimator.index = train.index
     meta_estimator.to_csv('meta_train_SDG_' + params['loss'] + '.csv')
 
-    test = pd.DataFrame.from_csv("test_dummied_200_sep_dep_fln_b_r_v2.csv")
+    test = pd.DataFrame.from_csv("test_dummied_150_sep_dep_fln_b_r_v5.csv").astype('float')
     test.fillna(0)
     test = test[chi2_cols]
     test = np.array(test)
@@ -107,10 +110,4 @@ for params in ParameterGrid(param_grid):
     submission_file = pd.DataFrame.from_csv("sample_submission.csv")
     submission_file[list(submission_file.columns.values)] = predicted_results
     submission_file.to_csv('meta_test_SDG_' + params['loss'] + '.csv')
-    # predict
-    class_pred = classifier.predict_proba(test)
-
-    # evaluate
-    # print log_loss(y_test, class_pred)
-    print log_loss(train_result, classifier.predict_proba(train))
 
