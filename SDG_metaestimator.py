@@ -37,7 +37,7 @@ del train_arr
 
 best_metric = 10
 best_params = []
-param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.03], 'n_iter': [200], 'chi2_lim': [10000],
+param_grid = {'loss': ['log', 'modified_huber'], 'alpha': [0.03, 0.1, 0.3], 'n_iter': [50], 'chi2_lim': [10000],
               'penalty': ['elasticnet'], 'l1_ratio': [0.15], 'n_jobs': [1]}
 # param_grid = {'loss': ['log'], 'alpha': [0.01], 'n_iter': [200],
 #               # 'chi2_lim': [1000],
@@ -55,7 +55,7 @@ for params in ParameterGrid(param_grid):
 
     print len(chi2_cols), ' chi2 columns'
     train_arr = train.copy(deep=True)
-    # train_arr = train_arr[chi2_cols]
+    train_arr = train_arr[chi2_cols]
 
     # Standardizing
     stding = StandardScaler()
