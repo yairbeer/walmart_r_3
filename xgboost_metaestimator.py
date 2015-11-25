@@ -26,6 +26,7 @@ col_list = list(train.columns.values)
 
 test = pd.DataFrame.from_csv("test_dummied_150_sep_dep_fln_b_r_v5.csv").astype('float')
 test.fillna(0)
+test_index = test.index
 
 # print train_result.shape[1], ' categorial'
 print train.shape[1], ' columns'
@@ -125,7 +126,7 @@ for params in ParameterGrid(param_grid):
     predicted_results = predicted_results.reshape(test.shape[0], 38)
 
     predicted_results = pd.DataFrame(predicted_results)
-    predicted_results.index = test.index
+    predicted_results.index = test_index
     predicted_results.to_csv("meta_test_xgboost_5_dep.csv")
 
 

@@ -20,11 +20,11 @@ for i in range(1, len(result_ind)):
 # print train_result_xgb
 
 # combining meta_estimators
-train = glob.glob('meta*')
-print train
+train = glob.glob('meta_train*')
 for i in range(len(train)):
     train[i] = pd.DataFrame.from_csv(train[i])
 train = pd.concat(train, axis=1)
+train.fillna(9999)
 
 train_arr = np.array(train)
 col_list = list(train.columns.values)
@@ -32,19 +32,18 @@ col_list = list(train.columns.values)
 # print train_result.shape[1], ' categorial'
 print train.shape[1], ' columns'
 
+# Standardizing
+stding = StandardScaler()
+train_arr = stding.fit_transform(train_arr)
+
 best_metric = 10
 best_params = []
-param_grid = {'silent': [1], 'nthread': [3], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [4, 5, 6], 'chi2_lim': [0], 'num_round': [200],
+param_grid = {'silent': [1], 'nthread': [3], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.03],
+              'objective': ['multi:softprob'], 'max_depth': [4, 5, 6], 'chi2_lim': [0], 'num_round': [500],
               'subsample': [0.5, 0.75, 1]}
 
 for params in ParameterGrid(param_grid):
     print params
-
-    # Standardizing
-    stding = StandardScaler()
-    train_arr = stding.fit_transform(train_arr)
-
     print 'start CV'
     # CV
     cv_n = 4
