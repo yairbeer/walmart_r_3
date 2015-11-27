@@ -39,12 +39,13 @@ train_arr = stding.fit_transform(train_arr)
 best_metric = 10
 best_params = []
 param_grid = {'silent': [1], 'nthread': [3], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.03],
-              'objective': ['multi:softprob'], 'max_depth': [4, 5, 6], 'chi2_lim': [0], 'num_round': [500],
+              'objective': ['multi:softprob'], 'max_depth': [4, 5, 6], 'chi2_lim': [0], 'num_round': [400, 500, 600],
               'subsample': [0.5, 0.75, 1]}
 
-for params in ParameterGrid(param_grid):
+print 'start CV'
+for i, params in enumerate(ParameterGrid(param_grid)):
+    print i
     print params
-    print 'start CV'
     # CV
     cv_n = 4
     kf = StratifiedKFold(train_result, n_folds=cv_n, shuffle=True)
@@ -78,3 +79,5 @@ for params in ParameterGrid(param_grid):
         best_metric = metric
         best_params = params
     print 'The best metric is:', best_metric, 'for the params:', best_params
+
+# The best metric is: 0.654213518727 for the params: {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'subsample': 0.75, 'nthread': 3, 'objective': 'multi:softprob', 'eta': 0.03, 'num_round': 400, 'max_depth': 4, 'chi2_lim': 0}
