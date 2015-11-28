@@ -35,7 +35,13 @@ def load_dataset():
     X_train = np.array(X_train).astype('float64')
     # print (X_train.shape)
 
-    y_train = np.array(pd.DataFrame.from_csv("train_result.csv")).astype('int32').ravel()
+    train_result = pd.DataFrame.from_csv("train_result.csv")
+    col = list(train_result.columns.values)
+    result_ind = list(train_result[col[0]].value_counts().index)
+    train_result = np.array(train_result).ravel()
+    y_train = np.zeros(train_result.shape)
+    for i in range(1, len(result_ind)):
+        y_train += (train_result == y_train[i]) * i
 
     X_test = pd.DataFrame.from_csv('test_dummied_150_sep_dep_fln_b_r_v5.csv')
     X_test.fillna(999)
