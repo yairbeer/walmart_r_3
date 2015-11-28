@@ -41,7 +41,7 @@ def load_dataset():
     train_result = np.array(train_result).ravel()
     y_train = np.zeros(train_result.shape)
     for i in range(1, len(result_ind)):
-        y_train += (train_result == y_train[i]) * i
+        y_train += (train_result == result_ind[i]) * i
 
     X_test = pd.DataFrame.from_csv('test_dummied_150_sep_dep_fln_b_r_v5.csv')
     X_test.fillna(999)
@@ -50,7 +50,7 @@ def load_dataset():
     y_test = np.ones((X_test.shape[0],)) * 3.0
 
     # We reserve the last 10000 training examples for validation.
-    X_train, X_val = X_train[:-10000], X_train[-10000:]
+    X_train, X_val = X_train[:-10000, :], X_train[-10000:, :]
     y_train, y_val = y_train[:-10000], y_train[-10000:]
 
     # We just return all the arrays in order, as expected in main().
@@ -95,9 +95,9 @@ def build_mlp(input_var=None):
     # 50% dropout again:
     l_hid2_drop = lasagne.layers.DropoutLayer(l_hid2, p=0.5)
 
-    # Finally, we'll add the fully-connected output layer, of 10 softmax units:
+    # Finally, we'll add the fully-connected output layer, of 38 softmax units:
     l_out = lasagne.layers.DenseLayer(
-            l_hid2_drop, num_units=10,
+            l_hid2_drop, num_units=38,
             nonlinearity=lasagne.nonlinearities.softmax)
 
     # Each layer is linked to its incoming layer(s), so we only need to pass
@@ -206,6 +206,7 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
 
 def main(model='mlp', num_epochs=500):
     # Load the dataset
+    n_batches = 500
     print("Loading data...")
     X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
 
@@ -267,7 +268,7 @@ def main(model='mlp', num_epochs=500):
         train_err = 0
         train_batches = 0
         start_time = time.time()
-        for batch in iterate_minibatches(X_train, y_train, 500, shuffle=True):
+        for batch in iterate_minibatches(X_train, y_train, n_batches, shuffle=True):
             inputs, targets = batch
             train_err += train_fn(inputs, targets)
             train_batches += 1
@@ -276,7 +277,7 @@ def main(model='mlp', num_epochs=500):
         val_err = 0
         val_acc = 0
         val_batches = 0
-        for batch in iterate_minibatches(X_val, y_val, 500, shuffle=False):
+        for batch in iterate_minibatches(X_val, y_val, n_batches, shuffle=False):
             inputs, targets = batch
             err, acc = val_fn(inputs, targets)
             val_err += err
@@ -295,7 +296,7 @@ def main(model='mlp', num_epochs=500):
     test_err = 0
     test_acc = 0
     test_batches = 0
-    for batch in iterate_minibatches(X_test, y_test, 500, shuffle=False):
+    for batch in iterate_minibatches(X_test, y_test, n_batches, shuffle=False):
         inputs, targets = batch
         err, acc = val_fn(inputs, targets)
         test_err += err
@@ -303,8 +304,7 @@ def main(model='mlp', num_epochs=500):
         test_batches += 1
     print("Final results:")
     print("  test loss:\t\t\t{:.6f}".format(test_err / test_batches))
-    print("  test accuracy:\t\t{:.2f} %".format(
-        test_acc / test_batches * 100))
+    print("  test accuracy:\t\t{:.2f} %".format(test_acc / test_batches * 100))
 
     # Optionally, you could now dump the network weights to a file like this:
     # np.savez('model.npz', *lasagne.layers.get_all_param_values(network))
@@ -317,7 +317,7 @@ def main(model='mlp', num_epochs=500):
 
 if __name__ == '__main__':
     if ('--help' in sys.argv) or ('-h' in sys.argv):
-        print("Trains a neural network on MNIST using Lasagne.")
+        print("Trains a neural network on walmart using Lasagne.")
         print("Usage: %s [MODEL [EPOCHS]]" % sys.argv[0])
         print()
         print("MODEL: 'mlp' for a simple Multi-Layer Perceptron (MLP),")
