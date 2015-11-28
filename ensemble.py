@@ -35,9 +35,9 @@ print train.shape[1], ' columns'
 
 best_metric = 10
 best_params = []
-param_grid = {'silent': [1], 'nthread': [4], 'num_class': [38], 'eval_metric': ['mlogloss'], 'eta': [0.1],
-              'objective': ['multi:softprob'], 'max_depth': [4], 'chi2_lim': [0], 'num_round': [130, 180, 230],
-              'subsample': [0.75]}
+param_grid = {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'subsample': 0.5, 'nthread': 3,
+              'objective': 'multi:softprob', 'eta': 0.03, 'num_round': 400, 'max_depth': 5, 'chi2_lim': 0}
+
 
 for params in ParameterGrid(param_grid):
     print params
@@ -73,4 +73,4 @@ for params in ParameterGrid(param_grid):
                 submission_table[:, i] = predicted_results[:, j]
 
     submission_file[list(submission_file.columns.values)] = submission_table
-    submission_file.to_csv("ensemble_xgboost_%s.csv" % params['num_round'])
+    submission_file.to_csv("ensemble_xgboost_opt.csv")

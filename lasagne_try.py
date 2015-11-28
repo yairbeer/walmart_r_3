@@ -30,10 +30,17 @@ import lasagne
 def load_dataset():
 
     # We can now download and read the training and test set images and labels.
-    X_train = np.array(pd.DataFrame.from_csv('train_dummied_150_sep_dep_fln_b_r_v5.csv')).astype('float')
+    X_train = pd.DataFrame.from_csv('train_dummied_150_sep_dep_fln_b_r_v5.csv')
+    X_train.fillna(999)
+    X_train = np.array(X_train).astype('float64')
     # print (X_train.shape)
-    y_train = np.array(pd.DataFrame.from_csv("train_result.csv")).ravel()
-    X_test = np.array(pd.DataFrame.from_csv('test_dummied_150_sep_dep_fln_b_r_v5.csv')).astype('float')
+
+    y_train = np.array(pd.DataFrame.from_csv("train_result.csv")).astype('int32').ravel()
+
+    X_test = pd.DataFrame.from_csv('test_dummied_150_sep_dep_fln_b_r_v5.csv')
+    X_test.fillna(999)
+    X_test = np.array(X_test).astype('float64')
+
     y_test = np.ones((X_test.shape[0],)) * 3.0
 
     # We reserve the last 10000 training examples for validation.
@@ -58,7 +65,7 @@ def build_mlp(input_var=None):
     # Input layer, specifying the expected input shape of the network
     # (unspecified batchsize, 1 channel, 28 rows and 28 columns) and
     # linking it to the given Theano variable `input_var`, if any:
-    l_in = lasagne.layers.InputLayer(shape=(None, 1, 1571),
+    l_in = lasagne.layers.InputLayer(shape=(None, 1571),
                                      input_var=input_var)
 
     # Apply 20% dropout to the input data:
@@ -103,7 +110,7 @@ def build_custom_mlp(input_var=None, depth=2, width=800, drop_input=.2,
     # just used different names above for clarity.
 
     # Input layer and dropout (with shortcut `dropout` for `DropoutLayer`):
-    network = lasagne.layers.InputLayer(shape=(None, 1, 1571),
+    network = lasagne.layers.InputLayer(shape=(None, 1571),
                                         input_var=input_var)
     if drop_input:
         network = lasagne.layers.dropout(network, p=drop_input)
@@ -125,7 +132,7 @@ def build_cnn(input_var=None):
     # and a fully-connected hidden layer in front of the output layer.
 
     # Input layer, as usual:
-    network = lasagne.layers.InputLayer(shape=(None, 1, 1571),
+    network = lasagne.layers.InputLayer(shape=(None, 1571),
                                         input_var=input_var)
     # This time we do not apply input dropout, as it tends to work less well
     # for convolutional layers.
@@ -197,7 +204,7 @@ def main(model='mlp', num_epochs=500):
     X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
 
     # Prepare Theano variables for inputs and targets
-    input_var = T.tensor3('inputs')
+    input_var = T.dmatrix('inputs')
     target_var = T.ivector('targets')
 
     # Create neural network model (depending on first command line parameter)
@@ -241,10 +248,10 @@ def main(model='mlp', num_epochs=500):
 
     # Compile a function performing a training step on a mini-batch (by giving
     # the updates dictionary) and returning the corresponding training loss:
-    train_fn = theano.function([input_var, target_var], loss, updates=updates)
+    train_fn = theano.function([input_var, target_var], loss, updates=updates, allow_input_downcast=True)
 
     # Compile a second function computing the validation loss and accuracy:
-    val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
+    val_fn = theano.function([input_var, target_var], [test_loss, test_acc], allow_input_downcast=True)
 
     # Finally, launch the training loop.
     print("Starting training...")

@@ -82,3 +82,4 @@ for i, params in enumerate(ParameterGrid(param_grid)):
 
 # The best metric is: 0.654213518727 for the params: {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'subsample': 0.75, 'nthread': 3, 'objective': 'multi:softprob', 'eta': 0.03, 'num_round': 400, 'max_depth': 4, 'chi2_lim': 0}
 # The best metric is: 0.652386650246 for the params: {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'subsample': 0.5, 'nthread': 3, 'objective': 'multi:softprob', 'eta': 0.03, 'num_round': 600, 'max_depth': 4, 'chi2_lim': 0}
+# The best metric is: 0.650922981007 for the params: {'num_class': 38, 'silent': 1, 'eval_metric': 'mlogloss', 'subsample': 0.5, 'nthread': 3, 'objective': 'multi:softprob', 'eta': 0.03, 'num_round': 400, 'max_depth': 5, 'chi2_lim': 0}
